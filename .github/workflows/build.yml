@@ -1,0 +1,85 @@
+name: Build FidelKey
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-engine:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup MSVC
+      uses: ilammy/msvc-dev-cmd@v1
+    
+    - name: Build and Test Engine
+      run: |
+        cd engine
+        mkdir build -Force
+        cd build
+        cmake .. -DBUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        cmake --build . --config Release
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        echo "Running engine tests..."
+        ctest --output-on-failure -C Release
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        echo "Engine tests completed successfully"
+    
+  build-others:
+    runs-on: windows-latest
+    needs: [build-engine]
+    continue-on-error: true
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+    
+    - name: Setup Rust
+      uses: dtolnay/rust-toolchain@stable
+    
+    - name: Install Tauri CLI (optional)
+      run: cargo install tauri-cli --version "^2.0.0" 2>&1 | tail -5
+    
+    - name: Build Tauri Settings App (UNFINISHED - may fail)
+      run: |
+        cd settings-app
+        if (Test-Path "package.json") {
+          npm ci
+          npm run tauri build 2>&1 | tail -20
+        } else {
+          echo "Settings app not yet implemented"
+        }
+    
+    - name: Build TSF Service (UNFINISHED - may fail)
+      run: |
+        cd tsf-service
+        if (Test-Path "CMakeLists.txt") {
+          mkdir build -Force
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release
+          cmake --build . --config Release
+        } else {
+          echo "TSF service not yet implemented"
+        }
+    
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: fidelkey-build
+        path: |
+          engine/build/Release/engine_tests.exe
+          engine/build/Release/*.dll
+        if-no-files-found: ignore
