@@ -1,0 +1,30 @@
+{
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build",
+    "devUrl": "http://localhost:1420",
+    "frontendDist": "../dist"
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": []
+  },
+  "productName": "FidelKey",
+  "mainBinaryName": "FidelKey",
+  "version": "0.1.0",
+  "identifier": "com.fidelkey.app",
+  "plugins": {},
+  "app": {
+    "windows": [
+      {
+        "title": "FidelKey Settings",
+        "width": 800,
+        "height": 600
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  }
+}
