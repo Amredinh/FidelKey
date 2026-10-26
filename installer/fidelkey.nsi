@@ -1,8 +1,6 @@
 !include "MUI2.nsh"
 !include "LogicLib.nsh"
 
-Target amd64-unicode
-
 !ifndef VERSION
   !define VERSION "0.1.0"
 !endif
@@ -25,6 +23,7 @@ OutFile "FidelKey-Setup-${VERSION}.exe"
 InstallDir "$PROGRAMFILES64\FidelKey"
 InstallDirRegKey HKLM "Software\FidelKey" "InstallLocation"
 RequestExecutionLevel admin
+Unicode true
 
 SetCompressor /SOLID lzma
 
@@ -69,7 +68,8 @@ Section "FidelKey" SecMain
   !endif
 
   ; Register the TSF text service (COM + input processor profile).
-  ExecWait '"$SYSDIR\regsvr32.exe" /s "$INSTDIR\FidelKeyTSF.dll"' $0
+  ; The installer stub is 32-bit, so use Sysnative to reach the 64-bit registrar.
+  ExecWait '"$WINDIR\Sysnative\regsvr32.exe" /s "$INSTDIR\FidelKeyTSF.dll"' $0
   ${If} $0 != 0
     MessageBox MB_ICONEXCLAMATION|MB_OK "FidelKey was installed, but the keyboard could not be registered (code $0). Try running the installer as administrator."
   ${EndIf}
@@ -96,7 +96,7 @@ Section "Uninstall"
   SetShellVarContext all
   SetRegView 64
 
-  ExecWait '"$SYSDIR\regsvr32.exe" /u /s "$INSTDIR\FidelKeyTSF.dll"'
+  ExecWait '"$WINDIR\Sysnative\regsvr32.exe" /u /s "$INSTDIR\FidelKeyTSF.dll"'
 
   Delete "$INSTDIR\FidelKey.exe"
   Delete "$INSTDIR\FidelKeyTSF.dll"
