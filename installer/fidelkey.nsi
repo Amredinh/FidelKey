@@ -1,6 +1,8 @@
 !include "MUI2.nsh"
 !include "LogicLib.nsh"
 
+Target amd64-unicode
+
 !ifndef VERSION
   !define VERSION "0.1.0"
 !endif
@@ -23,11 +25,8 @@ OutFile "FidelKey-Setup-${VERSION}.exe"
 InstallDir "$PROGRAMFILES64\FidelKey"
 InstallDirRegKey HKLM "Software\FidelKey" "InstallLocation"
 RequestExecutionLevel admin
-Unicode true
 
 SetCompressor /SOLID lzma
-SetShellVarContext all
-SetRegView 64
 
 VIProductVersion "${VERSION}.0"
 VIAddVersionKey "ProductName" "FidelKey"
@@ -52,6 +51,9 @@ VIAddVersionKey "LegalCopyright" "FidelKey contributors"
 
 Section "FidelKey" SecMain
   SectionIn RO
+
+  SetShellVarContext all
+  SetRegView 64
 
   SetOutPath "$INSTDIR"
   SetOverwrite on
@@ -91,6 +93,9 @@ Section "FidelKey" SecMain
 SectionEnd
 
 Section "Uninstall"
+  SetShellVarContext all
+  SetRegView 64
+
   ExecWait '"$SYSDIR\regsvr32.exe" /u /s "$INSTDIR\FidelKeyTSF.dll"'
 
   Delete "$INSTDIR\FidelKey.exe"
