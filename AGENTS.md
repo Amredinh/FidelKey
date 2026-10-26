@@ -16,9 +16,9 @@ FidelKey is a lightweight, free, ad-free Amharic keyboard for Windows 10/11 usin
 
 ## Status
 - **Start Date:** 2026-10-24
-- **Status:** Milestone 1 - Mapping specification (VALIDATED)
-- **Phase:** Milestone 1 complete, Milestone 2 in progress
-- **Build State:** Engine build + tests PASSED in CI (GitHub Actions)
+- **Status:** Milestone 3 - TSF service implementation (IN PROGRESS)
+- **Phase:** Building full app (engine validated, TSF skeleton built, settings skeleton built)
+- **Build State:** Engine + TSF build in CI
 
 ## Activity Log
 
@@ -27,7 +27,7 @@ FidelKey is a lightweight, free, ad-free Amharic keyboard for Windows 10/11 usin
 - [x] Explored repo - only BUILD.md existed
 - [x] Initialized git repository
 - [x] Created AGENTS.md for tracking
-- [x] Created project structure (engine, tsf-service, settings-app, installer, .github/workflows, docs)
+- [x] Created project structure
 - [x] Researched GFF Amharic layout patterns
 - [x] Created mapping specification document
 - [x] Designed conversion engine API
@@ -39,31 +39,34 @@ FidelKey is a lightweight, free, ad-free Amharic keyboard for Windows 10/11 usin
 - [x] Created GitHub Actions workflow for Windows builds
 - [x] Pushed to GitHub, CI build-engine job SUCCEEDED (30s)
 - [x] Engine tests passed in CI
-- [x] Added TSF service skeleton
+- [x] Added TSF service skeleton with COM interfaces
 - [x] Added Tauri settings app skeleton
+- [x] Updated TSF TextService with composition support
+- [x] Updated CI workflow to build TSF service
 
 ## Milestones
 1. **Milestone 1 — Mapping specification** (VALIDATED - CI passed)
-2. **Milestone 2 — Conversion engine** (IN PROGRESS)
-3. **Milestone 3 — Windows integration (TSF)** (SKELETON)
+2. **Milestone 2 — Conversion engine** (IN PROGRESS - engine built and tested)
+3. **Milestone 3 — Windows integration (TSF)** (IN PROGRESS - skeleton + COM interfaces)
 4. **Milestone 4 — Settings interface (Tauri)** (SKELETON)
 5. **Milestone 5 — Installer**
 6. **Milestone 6 — Testing and release**
 
 ## Current Focus
-- Engine tests passed in CI - mapping validation successful
-- Next: expand engine test coverage
-- Then: implement full TSF service (Milestone 3)
-- Then: implement full Tauri settings app (Milestone 4)
+- TSF service implementation in progress
+- Need to add proper COM registration
+- Need to implement TSF composition framework
+- Need to build out Tauri settings app
+- Need to create installer
 
 ## Known Issues / Uncertainties
-- Need to verify specific family distinctions (ה/ሐ/ኀ, ሰ/ሠ, ጸ/ፀ) with actual testing
-- Labiovelar forms need validation
-- TSF service needs full implementation
-- Settings app needs full implementation
+- TSF composition framework not fully implemented
+- Registration needs full implementation
+- Settings app needs full UI
+- No installer yet
 
 ## Next Actions
-1. Expand engine tests further based on CI results
-2. Implement full TSF text service
-3. Implement full Tauri settings app
-4. Create installer
+1. Implement TSF composition framework
+2. Build out Tauri settings app
+3. Create installer configuration
+4. Test on Windows via CI
