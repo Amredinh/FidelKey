@@ -5,11 +5,22 @@ CFidelKeyTextService::CFidelKeyTextService()
     , m_tid(TF_CLIENTID_NULL)
     , m_pThreadMgr(nullptr)
     , m_dwThreadMgrEventSinkCookie(TF_INVALID_COOKIE)
+    , m_pCompositionRange(nullptr)
+    , m_pComposition(nullptr)
 {
 }
 
 CFidelKeyTextService::~CFidelKeyTextService()
 {
+    if (m_pComposition) {
+        m_pComposition->EndComposition(nullptr);
+        m_pComposition->Release();
+        m_pComposition = nullptr;
+    }
+    if (m_pCompositionRange) {
+        m_pCompositionRange->Release();
+        m_pCompositionRange = nullptr;
+    }
     if (m_pThreadMgr) {
         m_pThreadMgr->Release();
         m_pThreadMgr = nullptr;
@@ -58,7 +69,6 @@ STDMETHODIMP CFidelKeyTextService::Activate(ITfThreadMgr* pThreadMgr, TfClientId
     m_pThreadMgr = pThreadMgr;
     m_pThreadMgr->AddRef();
 
-    // Advise thread mgr event sink
     ITfSource* pSource = nullptr;
     if (SUCCEEDED(m_pThreadMgr->QueryInterface(IID_ITfSource, (void**)&pSource))) {
         pSource->AdviseSink(IID_ITfThreadMgrEventSink, (ITfThreadMgrEventSink*)this, &m_dwThreadMgrEventSinkCookie);
@@ -128,7 +138,6 @@ HRESULT CFidelKeyTextService::HandleKey(TfClientId tid, ITfContext* pContext, WP
     wchar_t key = (wchar_t)wParam;
     if (key == 0) return S_OK;
 
-    // Process through engine
     auto result = m_engine.ProcessKey(key);
 
     if (result.consumed) {
@@ -137,11 +146,6 @@ HRESULT CFidelKeyTextService::HandleKey(TfClientId tid, ITfContext* pContext, WP
         if (result.shouldCommit && !result.output.empty()) {
             InsertText(pContext, result.output);
             m_engine.Reset();
-        } else if (!result.composition.empty()) {
-            // Update composition display
-            // In full implementation, use ITfComposition
-            // For now, insert the composed text
-            // (Simplified - full TSF would use composition framework)
         }
     }
 
@@ -178,25 +182,6 @@ HRESULT CFidelKeyTextService::InsertText(ITfContext* pContext, const std::wstrin
         hr = pInsertAtSelection->InsertTextAtSelection(m_tid, 0, text.c_str(), (LONG)text.length(), &pRange);
         if (pRange) pRange->Release();
         pInsertAtSelection->Release();
-    }
-    return hr;
-}
-
-HRESULT CFidelKeyTextService::GetContextSelection(ITfContext* pContext, ITfRange** ppRange)
-{
-    if (ppRange == nullptr) return E_INVALIDARG;
-    *ppRange = nullptr;
-
-    ITfSelectionMgr* pSelectionMgr = nullptr;
-    HRESULT hr = pContext->QueryInterface(IID_ITfSelectionMgr, (void**)&pSelectionMgr);
-    if (SUCCEEDED(hr)) {
-        TF_SELECTION selection;
-        ULONG cFetched = 0;
-        hr = pSelectionMgr->GetSelection(m_tid, TF_DEFAULT_SELECTION, 1, &selection, &cFetched);
-        if (SUCCEEDED(hr) && cFetched > 0) {
-            *ppRange = selection.range;
-        }
-        pSelectionMgr->Release();
     }
     return hr;
 }
