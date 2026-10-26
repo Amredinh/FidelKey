@@ -17,8 +17,8 @@ FidelKey is a lightweight, free, ad-free Amharic keyboard for Windows 10/11 usin
 ## Status
 - **Start Date:** 2026-10-24
 - **Status:** Milestone 3 - TSF service implementation (IN PROGRESS)
-- **Phase:** Building full app (engine validated, TSF skeleton built, settings skeleton built)
-- **Build State:** Engine + TSF build in CI
+- **Phase:** Building full app (engine validated, TSF skeleton built, settings app built)
+- **Build State:** Engine + TSF build in CI, settings app in CI
 
 ## Activity Log
 
@@ -43,30 +43,32 @@ FidelKey is a lightweight, free, ad-free Amharic keyboard for Windows 10/11 usin
 - [x] Added Tauri settings app skeleton
 - [x] Updated TSF TextService with composition support
 - [x] Updated CI workflow to build TSF service
+- [x] Built out Tauri settings app with UI screens
+- [x] Added Cargo.toml and main.rs for Tauri
 
 ## Milestones
 1. **Milestone 1 — Mapping specification** (VALIDATED - CI passed)
 2. **Milestone 2 — Conversion engine** (IN PROGRESS - engine built and tested)
 3. **Milestone 3 — Windows integration (TSF)** (IN PROGRESS - skeleton + COM interfaces)
-4. **Milestone 4 — Settings interface (Tauri)** (SKELETON)
+4. **Milestone 4 — Settings interface (Tauri)** (SKELETON - basic UI implemented)
 5. **Milestone 5 — Installer**
 6. **Milestone 6 — Testing and release**
 
 ## Current Focus
 - TSF service implementation in progress
+- Settings app basic UI implemented
 - Need to add proper COM registration
 - Need to implement TSF composition framework
-- Need to build out Tauri settings app
 - Need to create installer
 
 ## Known Issues / Uncertainties
 - TSF composition framework not fully implemented
 - Registration needs full implementation
-- Settings app needs full UI
+- Settings app needs more features (config persistence, IPC)
 - No installer yet
 
 ## Next Actions
 1. Implement TSF composition framework
-2. Build out Tauri settings app
+2. Add config persistence to settings app
 3. Create installer configuration
 4. Test on Windows via CI
