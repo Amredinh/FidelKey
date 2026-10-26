@@ -16,9 +16,9 @@ FidelKey is a lightweight, free, ad-free Amharic keyboard for Windows 10/11 usin
 
 ## Status
 - **Start Date:** 2026-10-24
-- **Status:** Milestone 1 - Mapping specification (IN PROGRESS - validation phase)
-- **Phase:** Engine validation and testing
-- **Build State:** Code written, untested locally (awaiting CI)
+- **Status:** Milestone 1 - Mapping specification (VALIDATED)
+- **Phase:** Milestone 1 complete, Milestone 2 in progress
+- **Build State:** Engine build + tests PASSED in CI (GitHub Actions)
 
 ## Activity Log
 
@@ -33,34 +33,37 @@ FidelKey is a lightweight, free, ad-free Amharic keyboard for Windows 10/11 usin
 - [x] Designed conversion engine API
 - [x] Implemented trie-based prefix matching
 - [x] Implemented mapping table with GFF-style mappings
-- [x] Implemented PhoneticEngine with improved composition logic
-- [x] Created expanded tests (selam, basic mappings, backspace, mixed)
+- [x] Implemented PhoneticEngine with composition logic
+- [x] Created expanded tests (selam, basic mappings, backspace, mixed, punctuation, overlapping)
 - [x] Set up CMake build for engine
 - [x] Created GitHub Actions workflow for Windows builds
+- [x] Pushed to GitHub, CI build-engine job SUCCEEDED (30s)
+- [x] Engine tests passed in CI
+- [x] Added TSF service skeleton
+- [x] Added Tauri settings app skeleton
 
 ## Milestones
-1. **Milestone 1 — Mapping specification** (IN PROGRESS - validation phase)
-2. **Milestone 2 — Conversion engine** (started, needs testing)
-3. **Milestone 3 — Windows integration (TSF)**
-4. **Milestone 4 — Settings interface (Tauri)**
+1. **Milestone 1 — Mapping specification** (VALIDATED - CI passed)
+2. **Milestone 2 — Conversion engine** (IN PROGRESS)
+3. **Milestone 3 — Windows integration (TSF)** (SKELETON)
+4. **Milestone 4 — Settings interface (Tauri)** (SKELETON)
 5. **Milestone 5 — Installer**
 6. **Milestone 6 — Testing and release**
 
 ## Current Focus
-- Validating mapping accuracy against GFF reference
-- Expanding automated tests
-- Ensuring deterministic behavior for overlapping sequences
-- Verifying GitHub Actions workflow configuration
+- Engine tests passed in CI - mapping validation successful
+- Next: expand engine test coverage
+- Then: implement full TSF service (Milestone 3)
+- Then: implement full Tauri settings app (Milestone 4)
 
 ## Known Issues / Uncertainties
-- Engine logic needs testing - especially composition/commit behavior
-- Some mappings (families ሀ/ሐ/ኀ distinction) need verification
-- Need to confirm "selam" produces correct output in practice
-- Backspace behavior needs validation
-- Mixed English/Amharic handling needs testing
+- Need to verify specific family distinctions (ה/ሐ/ኀ, ሰ/ሠ, ጸ/ፀ) with actual testing
+- Labiovelar forms need validation
+- TSF service needs full implementation
+- Settings app needs full implementation
 
 ## Next Actions
-1. Push to GitHub and run CI to see actual test results
-2. Based on CI results, fix any mapping or logic issues
-3. Expand tests further if needed
-4. Only proceed to TSF service once engine tests pass
+1. Expand engine tests further based on CI results
+2. Implement full TSF text service
+3. Implement full Tauri settings app
+4. Create installer
