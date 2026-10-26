@@ -6,7 +6,7 @@ project(FidelKeyTSF LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Add engine as subdirectory (build as static lib)
+# Build engine as static library (needed for TSF)
 add_subdirectory(../engine engine-build EXCLUDE_FROM_ALL)
 
 add_library(FidelKeyTSF SHARED
@@ -33,5 +33,6 @@ target_link_libraries(FidelKeyTSF
 if(WIN32)
     set_target_properties(FidelKeyTSF PROPERTIES
         WINDOWS_EXPORT_ALL_SYMBOLS ON
+        PREFIX ""
     )
 endif()
