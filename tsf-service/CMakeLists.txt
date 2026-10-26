@@ -41,7 +41,6 @@ target_compile_definitions(FidelKeyTSF
 target_link_libraries(FidelKeyTSF
     PRIVATE
         fidelkey_engine
-        msctf
         ole32
         oleaut32
         uuid
