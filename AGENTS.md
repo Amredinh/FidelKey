@@ -16,9 +16,9 @@ FidelKey is a lightweight, free, ad-free Amharic keyboard for Windows 10/11 usin
 
 ## Status
 - **Start Date:** 2026-10-24
-- **Status:** Milestone 4/5 - full app implemented, awaiting CI validation
-- **Phase:** Phonetic engine, TSF service, settings app and NSIS installer written
-- **Build State:** NOT verified since the full rewrite. Run the workflow and fix failures.
+- **Status:** Milestone 5/6 - all CI jobs green, installer built; runtime testing pending
+- **Phase:** Phonetic engine, TSF service, settings app and NSIS installer compile and package in CI
+- **Build State:** Verified on 2026-10-26 by CI run `40274034101`: engine tests, TSF DLL, settings app and `FidelKey-Setup-0.1.0.exe` all succeeded.
 
 ## Activity Log
 
@@ -58,33 +58,50 @@ FidelKey is a lightweight, free, ad-free Amharic keyboard for Windows 10/11 usin
 - [x] Added NSIS installer (`installer/fidelkey.nsi`) and installer CI job
 - [x] Rewrote the GitHub Actions workflow (engine, TSF, settings, installer)
 
+### 2026-10-26
+- [x] Validated the mapping independently: 355 entries, no duplicate keys, all 317
+      explicit expectations and every sample word match the table
+- [x] Fixed a test that wrongly expected `ABC` to pass through (`C` maps to ጭ)
+- [x] CI green for the engine tests and the Tauri settings app
+- [x] Fixed TSF compilation: start compositions with
+      `ITfContextComposition::StartComposition` and a `TF_SELECTION` range
+- [x] Fixed TSF exports: use a `.def` file and `__stdcall`-compatible signatures;
+      dropped the nonexistent `msctf.lib` (TSF is consumed purely through COM)
+- [x] Fixed NSIS: move `SetShellVarContext`/`SetRegView` into sections and
+      register the x64 DLL via `Sysnative\regsvr32.exe` from the 32-bit stub
+- [x] Confirmed the full pipeline produces `FidelKey-Setup-0.1.0.exe` (25.5 MB,
+      includes the VC++ redistributable)
+
 ## Milestones
 1. **Milestone 1 — Mapping specification** (DONE, GFF 3.3)
-2. **Milestone 2 — Conversion engine** (IMPLEMENTED, tests written, CI unverified)
-3. **Milestone 3 — Windows integration (TSF)** (IMPLEMENTED, needs real Windows testing)
-4. **Milestone 4 — Settings interface (Tauri)** (IMPLEMENTED, CI unverified)
-5. **Milestone 5 — Installer** (IMPLEMENTED with NSIS, CI unverified)
-6. **Milestone 6 — Testing and release** (NOT STARTED)
+2. **Milestone 2 — Conversion engine** (DONE, engine tests pass in CI)
+3. **Milestone 3 — Windows integration (TSF)** (COMPILES IN CI, runtime untested)
+4. **Milestone 4 — Settings interface (Tauri)** (DONE, builds in CI)
+5. **Milestone 5 — Installer** (DONE, builds in CI)
+6. **Milestone 6 — Testing and release** (IN PROGRESS, manual testing only)
 
 ## Current Focus
-- Push the rewrite and watch the four CI jobs
-- Fix compile/link errors reported by CI
-- Install the produced setup on a real Windows machine and test Notepad first
+- Install the CI-built setup on a real Windows machine and test Notepad first
+- Verify TSF activation, composition, backspace, punctuation and uninstall
+- Decide whether to implement the traditional layout before release
 
 ## Known Issues / Uncertainties
-- The full rewrite has not been compiled yet. Treat CI as the first compiler.
-- TSF registration, composition lifetime and Win+Space activation must be tested
-  on a real Windows install, not just compiled.
+- TSF logic compiles but has never run. Boundary keys are finalized from
+  `OnTestKeyDown`, which may need revisiting during real-app testing.
+- TSF registration is per-machine and writes HKLM; installation needs admin.
+- Newly registered profiles may not appear until sign-out or a language-bar
+  restart; no explicit handling is implemented.
 - Traditional Fidel physical layout is documented but not implemented.
 - The layout setting is persisted by the settings app but the TSF service still
   always uses the phonetic layout (only layout available).
-- No sign-out/restart handling is implemented for newly registered profiles.
-- Installer is unsigned; SmartScreen will warn.
+- Installer is unsigned; SmartScreen will warn. The installer stub is 32-bit and
+  registers the x64 DLL through `Sysnative`.
 - Password/secure input contexts are not specially filtered yet.
 
 ## Next Actions
-1. Run the GitHub Actions workflow; fix every failure.
-2. Verify the engine test job genuinely fails on a broken mapping.
-3. Test the installed keyboard in Notepad, Word, and a browser.
-4. Verify uninstall removes the profile and files cleanly.
-5. Implement the traditional layout or explicitly drop it from the requirements.
+1. Download the `FidelKey-Setup` artifact and install it on Windows 10/11.
+2. Verify Win+Space activation and typing in Notepad, Word, and a browser.
+3. Verify uninstall removes the profile, files, and shortcuts cleanly.
+4. Verify the engine test job genuinely fails on a broken mapping.
+5. Address runtime TSF issues found during testing.
+6. Implement the traditional layout or explicitly drop it; then sign for release.
