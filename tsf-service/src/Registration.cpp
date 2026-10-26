@@ -155,7 +155,7 @@ HRESULT GetModulePath(wchar_t* path, DWORD cchPath) {
 
 } // namespace
 
-extern "C" __declspec(dllexport) HRESULT DllGetClassObject(REFCLSID rclsid, REFIID riid,
+extern "C" __declspec(dllexport) HRESULT STDAPICALLTYPE DllGetClassObject(REFCLSID rclsid, REFIID riid,
                                                             LPVOID* ppv) {
     if (ppv == nullptr) return E_INVALIDARG;
     *ppv = nullptr;
@@ -172,11 +172,11 @@ extern "C" __declspec(dllexport) HRESULT DllGetClassObject(REFCLSID rclsid, REFI
     return hr;
 }
 
-extern "C" __declspec(dllexport) HRESULT DllCanUnloadNow(void) {
+extern "C" __declspec(dllexport) HRESULT STDAPICALLTYPE DllCanUnloadNow(void) {
     return S_FALSE;
 }
 
-extern "C" __declspec(dllexport) HRESULT DllRegisterServer(void) {
+extern "C" __declspec(dllexport) HRESULT STDAPICALLTYPE DllRegisterServer(void) {
     wchar_t dllPath[MAX_PATH] = {};
     HRESULT hr = GetModulePath(dllPath, MAX_PATH);
     if (FAILED(hr)) return hr;
@@ -191,7 +191,7 @@ extern "C" __declspec(dllexport) HRESULT DllRegisterServer(void) {
     return hr;
 }
 
-extern "C" __declspec(dllexport) HRESULT DllUnregisterServer(void) {
+extern "C" __declspec(dllexport) HRESULT STDAPICALLTYPE DllUnregisterServer(void) {
     HRESULT coInit = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
     bool shouldUninitialize = SUCCEEDED(coInit);
     if (FAILED(coInit) && coInit != RPC_E_CHANGED_MODE) return coInit;

@@ -391,13 +391,29 @@ HRESULT CFidelKeyTextService::ApplyEdit(TfEditCookie ec, ITfContext* pContext, E
     if (pContext == nullptr) return E_INVALIDARG;
 
     if (op == EditOp::Start) {
-        ITfComposition* composition = nullptr;
-        HRESULT hr = pContext->StartComposition(ec, &composition);
-        if (FAILED(hr) || composition == nullptr) {
+        ITfRange* selection = nullptr;
+        HRESULT hr = pContext->GetSelection(ec, TF_DEFAULT_SELECTION, &selection);
+        if (FAILED(hr) || selection == nullptr) {
             return FAILED(hr) ? hr : E_FAIL;
         }
 
-        composition->SetSink(static_cast<ITfCompositionSink*>(this));
+        ITfContextComposition* contextComposition = nullptr;
+        hr = pContext->QueryInterface(IID_ITfContextComposition,
+                                      reinterpret_cast<void**>(&contextComposition));
+        if (FAILED(hr) || contextComposition == nullptr) {
+            selection->Release();
+            return FAILED(hr) ? hr : E_FAIL;
+        }
+
+        ITfComposition* composition = nullptr;
+        hr = contextComposition->StartComposition(
+            ec, selection, static_cast<ITfCompositionSink*>(this), &composition);
+        contextComposition->Release();
+        selection->Release();
+
+        if (FAILED(hr) || composition == nullptr) {
+            return FAILED(hr) ? hr : E_FAIL;
+        }
 
         ITfRange* range = nullptr;
         if (SUCCEEDED(composition->GetRange(&range)) && range != nullptr) {
