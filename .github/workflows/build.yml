@@ -32,7 +32,37 @@ jobs:
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
         echo "Engine tests completed successfully"
     
-  build-others:
+  build-tsf:
+    runs-on: windows-latest
+    needs: [build-engine]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup MSVC
+      uses: ilammy/msvc-dev-cmd@v1
+    
+    - name: Build TSF Service
+      run: |
+        cd tsf-service
+        mkdir build -Force
+        cd build
+        cmake .. -DCMAKE_BUILD_TYPE=Release
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        cmake --build . --config Release
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        echo "TSF service built successfully"
+    
+    - name: Upload TSF artifacts
+      uses: actions/upload-artifact@v4
+      if: success()
+      with:
+        name: fidelkey-tsf
+        path: tsf-service/build/Release/*.dll
+        if-no-files-found: ignore
+    
+  build-settings:
     runs-on: windows-latest
     needs: [build-engine]
     continue-on-error: true
@@ -49,8 +79,8 @@ jobs:
     - name: Setup Rust
       uses: dtolnay/rust-toolchain@stable
     
-    - name: Install Tauri CLI (optional)
-      run: cargo install tauri-cli --version "^2.0.0" 2>&1 | tail -5
+    - name: Install Tauri CLI
+      run: cargo install tauri-cli --version "^2.0.0" --locked 2>&1 | tail -5
     
     - name: Build Tauri Settings App (UNFINISHED - may fail)
       run: |
@@ -62,24 +92,10 @@ jobs:
           echo "Settings app not yet implemented"
         }
     
-    - name: Build TSF Service (UNFINISHED - may fail)
-      run: |
-        cd tsf-service
-        if (Test-Path "CMakeLists.txt") {
-          mkdir build -Force
-          cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Release
-          cmake --build . --config Release
-        } else {
-          echo "TSF service not yet implemented"
-        }
-    
-    - name: Upload artifacts
+    - name: Upload settings artifacts
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: fidelkey-build
-        path: |
-          engine/build/Release/engine_tests.exe
-          engine/build/Release/*.dll
+        name: fidelkey-settings
+        path: settings-app/src-tauri/target/release/bundle/
         if-no-files-found: ignore

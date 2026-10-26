@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Engine library
-add_library(fidelkey_engine
+add_library(fidelkey_engine STATIC
     src/trie.cpp
     src/mapping.cpp
     src/engine.cpp

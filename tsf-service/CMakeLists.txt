@@ -6,6 +6,9 @@ project(FidelKeyTSF LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Add engine as subdirectory (build as static lib)
+add_subdirectory(../engine engine-build EXCLUDE_FROM_ALL)
+
 add_library(FidelKeyTSF SHARED
     src/dllmain.cpp
     src/TextService.cpp
