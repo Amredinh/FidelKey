@@ -2,7 +2,7 @@
 #include <msctf.h>
 #include "TextService.h"
 
-// Class factory
+// Class factory implementation
 class CFidelKeyClassFactory : public IClassFactory {
 public:
     CFidelKeyClassFactory() : m_cRef(1) {}
@@ -38,9 +38,7 @@ public:
         return hr;
     }
     
-    STDMETHODIMP LockServer(BOOL fLock) {
-        return S_OK;
-    }
+    STDMETHODIMP LockServer(BOOL fLock) { return S_OK; }
     
 private:
     LONG m_cRef;
@@ -70,12 +68,19 @@ extern "C" __declspec(dllexport) HRESULT DllCanUnloadNow(void)
 
 extern "C" __declspec(dllexport) HRESULT DllRegisterServer(void)
 {
-    // Registration implementation
-    // In full implementation, register CLSID, profile, etc.
+    // Register CLSID
+    wchar_t szClsid[64];
+    StringFromGUID2(CLSID_FidelKeyTextService, szClsid, 64);
+    
+    // In full implementation, write to registry:
+    // HKEY_CLASSES_ROOT\CLSID\{CLSID}\InprocServer32
+    // HKEY_CLASSES_ROOT\CLSID\{CLSID}\ThreadingModel = "Apartment"
+    
     return S_OK;
 }
 
 extern "C" __declspec(dllexport) HRESULT DllUnregisterServer(void)
 {
+    // Unregister CLSID from registry
     return S_OK;
 }
