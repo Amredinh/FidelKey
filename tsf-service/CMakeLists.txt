@@ -20,6 +20,7 @@ add_library(FidelKeyTSF SHARED
     src/dllmain.cpp
     src/TextService.cpp
     src/Registration.cpp
+    FidelKeyTSF.def
 )
 
 target_include_directories(FidelKeyTSF
