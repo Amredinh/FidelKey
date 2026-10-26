@@ -6,372 +6,193 @@ namespace engine {
 MappingTable::MappingTable() {
 }
 
+// Mapping derived from the GFF Amharic 3.3 keyboard typing table:
+// https://help.keyman.com/keyboard/gff_amharic/3.3/gff_amharic
+//
+// Each consonant family is typed as <base> followed by a vowel:
+//   +e   -> 1st order (Ge'ez)
+//   +u   -> 2nd order (Ka'eb)
+//   +i   -> 3rd order (Salis)
+//   +a   -> 4th order (Rabe)
+//   +ie  -> 5th order (Hames)   (also accepted: +ee)
+//   (bare)-> 6th order (Sades)
+//   +o   -> 7th order (Sabe)
+// Labiovelar forms append u+vowel: +ue +uu +ui +ua +uie.
+namespace {
+
+void AddFamily(MappingTable& table, const wchar_t* b,
+    const wchar_t* o1, const wchar_t* o2, const wchar_t* o3, const wchar_t* o4,
+    const wchar_t* o5, const wchar_t* o6, const wchar_t* o7,
+    const wchar_t* l1 = nullptr, const wchar_t* l2 = nullptr,
+    const wchar_t* l3 = nullptr, const wchar_t* l4 = nullptr,
+    const wchar_t* l5 = nullptr) {
+    std::wstring base(b);
+    auto add = [&table](const std::wstring& key, const wchar_t* value) {
+        if (value != nullptr) table.AddMapping(key, value);
+    };
+    add(base + L"e", o1);
+    add(base + L"u", o2);
+    add(base + L"i", o3);
+    add(base + L"a", o4);
+    if (o5 != nullptr) {
+        add(base + L"ie", o5);
+        add(base + L"ee", o5);
+    }
+    add(base, o6);
+    add(base + L"o", o7);
+    add(base + L"ue", l1);
+    add(base + L"uu", l2);
+    add(base + L"ui", l3);
+    add(base + L"ua", l4);
+    add(base + L"uie", l5);
+}
+
+} // namespace
+
 void MappingTable::LoadGFFPhonetic() {
     mappings.clear();
-    
-    // Vowels
+
+    // Glottal (አ family): standalone vowels. GFF types 1st order as "a",
+    // 4th order as "aa", 6th order as "e", 5th order as "ie"/"ee".
     AddMapping(L"a", L"አ");
     AddMapping(L"u", L"ኡ");
     AddMapping(L"i", L"ኢ");
-    AddMapping(L"e", L"ኤ");
-    AddMapping(L"E", L"እ"); // glottal stop
+    AddMapping(L"aa", L"ኣ");
+    AddMapping(L"ie", L"ኤ");
+    AddMapping(L"ee", L"ኤ");
+    AddMapping(L"e", L"እ");
     AddMapping(L"o", L"ኦ");
-    
+
     // h family
-    AddMapping(L"he", L"ሀ");
-    AddMapping(L"hu", L"ሁ");
-    AddMapping(L"hi", L"ሂ");
-    AddMapping(L"ha", L"ሃ");
-    AddMapping(L"hie", L"ሄ");
-    AddMapping(L"h", L"ህ"); // 6th order
-    AddMapping(L"ho", L"ሆ");
-    
+    AddFamily(*this, L"h", L"ሀ", L"ሁ", L"ሂ", L"ሃ", L"ሄ", L"ህ", L"ሆ");
+
     // l family
-    AddMapping(L"le", L"ለ");
-    AddMapping(L"lu", L"ሉ");
-    AddMapping(L"li", L"ሊ");
-    AddMapping(L"la", L"ላ");
-    AddMapping(L"lie", L"ሌ");
-    AddMapping(L"lee", L"ሌ");
-    AddMapping(L"l", L"ል");
-    AddMapping(L"lo", L"ሎ");
-    AddMapping(L"lua", L"ሏ");
-    AddMapping(L"lwa", L"ሏ");
-    
-    // H/hh family (ሐ)
-    AddMapping(L"He", L"ሐ");
-    AddMapping(L"Hu", L"ሑ");
-    AddMapping(L"Hi", L"ሒ");
-    AddMapping(L"Ha", L"ሓ");
-    AddMapping(L"Hie", L"ሔ");
-    AddMapping(L"Hh", L"ሕ");
-    AddMapping(L"H", L"ሕ");
-    AddMapping(L"Ho", L"ሖ");
-    AddMapping(L"Hua", L"ሗ");
-    AddMapping(L"Hwa", L"ሗ");
-    
+    AddFamily(*this, L"l", L"ለ", L"ሉ", L"ሊ", L"ላ", L"ሌ", L"ል", L"ሎ",
+        L"ሏ", nullptr, nullptr, L"ሏ");
+
+    // H family (ሐ)
+    AddFamily(*this, L"H", L"ሐ", L"ሑ", L"ሒ", L"ሓ", L"ሔ", L"ሕ", L"ሖ",
+        L"ሗ", nullptr, nullptr, L"ሗ");
+
     // m family
-    AddMapping(L"me", L"መ");
-    AddMapping(L"mu", L"ሙ");
-    AddMapping(L"mi", L"ሚ");
-    AddMapping(L"ma", L"ማ");
-    AddMapping(L"mie", L"ሜ");
-    AddMapping(L"mee", L"ሜ");
-    AddMapping(L"m", L"ም");
-    AddMapping(L"mo", L"ሞ");
-    AddMapping(L"mua", L"ሟ");
-    AddMapping(L"mwa", L"ሟ");
-    
-    // s family
-    AddMapping(L"se", L"ሰ");
-    AddMapping(L"su", L"ሱ");
-    AddMapping(L"si", L"ሲ");
-    AddMapping(L"sa", L"ሳ");
-    AddMapping(L"sie", L"ሴ");
-    AddMapping(L"see", L"ሴ");
-    AddMapping(L"s", L"ስ");
-    AddMapping(L"so", L"ሶ");
-    AddMapping(L"sua", L"ሷ");
-    AddMapping(L"swa", L"ሷ");
-    
-    // S/ss family (ሠ)
-    AddMapping(L"Se", L"ሠ");
-    AddMapping(L"Su", L"ሡ");
-    AddMapping(L"Si", L"ሢ");
-    AddMapping(L"Sa", L"ሣ");
-    AddMapping(L"Sie", L"ሤ");
-    AddMapping(L"Ss", L"ሥ");
-    AddMapping(L"S", L"ሥ");
-    AddMapping(L"So", L"ሦ");
-    AddMapping(L"Sua", L"ሧ");
-    AddMapping(L"Swa", L"ሧ");
-    
+    AddFamily(*this, L"m", L"መ", L"ሙ", L"ሚ", L"ማ", L"ሜ", L"ም", L"ሞ",
+        L"ሟ", nullptr, nullptr, L"ሟ");
+
+    // ss family (ሠ)
+    AddFamily(*this, L"ss", L"ሠ", L"ሡ", L"ሢ", L"ሣ", L"ሤ", L"ሥ", L"ሦ",
+        L"ሧ", nullptr, nullptr, L"ሧ");
+
     // r family
-    AddMapping(L"re", L"ረ");
-    AddMapping(L"ru", L"ሩ");
-    AddMapping(L"ri", L"ሪ");
-    AddMapping(L"ra", L"ራ");
-    AddMapping(L"rie", L"ሬ");
-    AddMapping(L"ree", L"ሬ");
-    AddMapping(L"r", L"ር");
-    AddMapping(L"ro", L"ሮ");
-    AddMapping(L"rua", L"ሯ");
-    AddMapping(L"rwa", L"ሯ");
-    
-    // sh family
-    AddMapping(L"she", L"ሸ");
-    AddMapping(L"shu", L"ሹ");
-    AddMapping(L"shi", L"ሺ");
-    AddMapping(L"sha", L"ሻ");
-    AddMapping(L"shie", L"ሼ");
-    AddMapping(L"shee", L"ሼ");
-    AddMapping(L"sh", L"ሽ");
-    AddMapping(L"sho", L"ሾ");
-    AddMapping(L"shua", L"ሿ");
-    AddMapping(L"shwa", L"ሿ");
-    
-    // q family
-    AddMapping(L"qe", L"ቀ");
-    AddMapping(L"qu", L"ቁ");
-    AddMapping(L"qi", L"ቂ");
-    AddMapping(L"qa", L"ቃ");
-    AddMapping(L"qie", L"ቄ");
-    AddMapping(L"qee", L"ቄ");
-    AddMapping(L"q", L"ቅ");
-    AddMapping(L"qo", L"ቆ");
-    AddMapping(L"qua", L"ቋ");
-    AddMapping(L"qwa", L"ቋ");
-    
+    AddFamily(*this, L"r", L"ረ", L"ሩ", L"ሪ", L"ራ", L"ሬ", L"ር", L"ሮ",
+        L"ሯ", nullptr, nullptr, L"ሯ");
+
+    // s family (ሰ)
+    AddFamily(*this, L"s", L"ሰ", L"ሱ", L"ሲ", L"ሳ", L"ሴ", L"ስ", L"ሶ",
+        L"ሷ", nullptr, nullptr, L"ሷ");
+
+    // x family (ሸ). GFF uses 'x'; 'sh' is kept as a documented convenience alias.
+    AddFamily(*this, L"x", L"ሸ", L"ሹ", L"ሺ", L"ሻ", L"ሼ", L"ሽ", L"ሾ",
+        L"ሿ", nullptr, nullptr, L"ሿ");
+    AddFamily(*this, L"sh", L"ሸ", L"ሹ", L"ሺ", L"ሻ", L"ሼ", L"ሽ", L"ሾ",
+        L"ሿ", nullptr, nullptr, L"ሿ");
+
+    // q family with labiovelars
+    AddFamily(*this, L"q", L"ቀ", L"ቁ", L"ቂ", L"ቃ", L"ቄ", L"ቅ", L"ቆ",
+        L"ቈ", L"ቍ", L"ቊ", L"ቋ", L"ቌ");
+
     // b family
-    AddMapping(L"be", L"በ");
-    AddMapping(L"bu", L"ቡ");
-    AddMapping(L"bi", L"ቢ");
-    AddMapping(L"ba", L"ባ");
-    AddMapping(L"bie", L"ቤ");
-    AddMapping(L"bee", L"ቤ");
-    AddMapping(L"b", L"ብ");
-    AddMapping(L"bo", L"ቦ");
-    AddMapping(L"bua", L"ቧ");
-    AddMapping(L"bwa", L"ቧ");
-    
+    AddFamily(*this, L"b", L"በ", L"ቡ", L"ቢ", L"ባ", L"ቤ", L"ብ", L"ቦ",
+        L"ቧ", nullptr, nullptr, L"ቧ");
+
+    // v family
+    AddFamily(*this, L"v", L"ቨ", L"ቩ", L"ቪ", L"ቫ", L"ቬ", L"ቭ", L"ቮ",
+        L"ቯ", nullptr, nullptr, L"ቯ");
+
     // t family
-    AddMapping(L"te", L"ተ");
-    AddMapping(L"tu", L"ቱ");
-    AddMapping(L"ti", L"ቲ");
-    AddMapping(L"ta", L"ታ");
-    AddMapping(L"tie", L"ቴ");
-    AddMapping(L"tee", L"ቴ");
-    AddMapping(L"t", L"ት");
-    AddMapping(L"to", L"ቶ");
-    AddMapping(L"tua", L"ቷ");
-    AddMapping(L"twa", L"ቷ");
-    
-    // ch/c family
-    AddMapping(L"che", L"ቸ");
-    AddMapping(L"chu", L"ቹ");
-    AddMapping(L"chi", L"ቺ");
-    AddMapping(L"cha", L"ቻ");
-    AddMapping(L"chie", L"ቼ");
-    AddMapping(L"chee", L"ቼ");
-    AddMapping(L"ch", L"ች");
-    AddMapping(L"cho", L"ቾ");
-    AddMapping(L"chua", L"ቿ");
-    AddMapping(L"chwa", L"ቿ");
-    AddMapping(L"ce", L"ቸ");
-    AddMapping(L"cu", L"ቹ");
-    AddMapping(L"ci", L"ቺ");
-    AddMapping(L"ca", L"ቻ");
-    AddMapping(L"cie", L"ቼ");
-    AddMapping(L"c", L"ች");
-    AddMapping(L"co", L"ቾ");
-    AddMapping(L"cua", L"ቿ");
-    AddMapping(L"cwa", L"ቿ");
-    
-    // T/tt family (ጠ)
-    AddMapping(L"Te", L"ጠ");
-    AddMapping(L"Tu", L"ጡ");
-    AddMapping(L"Ti", L"ጢ");
-    AddMapping(L"Ta", L"ጣ");
-    AddMapping(L"Tie", L"ጤ");
-    AddMapping(L"Tee", L"ጤ");
-    AddMapping(L"Tt", L"ጥ");
-    AddMapping(L"T", L"ጥ");
-    AddMapping(L"To", L"ጦ");
-    AddMapping(L"Tua", L"ጧ");
-    AddMapping(L"Twa", L"ጧ");
-    
-    // C/cc family (ጨ)
-    AddMapping(L"Che", L"ጨ");
-    AddMapping(L"Chu", L"ጩ");
-    AddMapping(L"Chi", L"ጪ");
-    AddMapping(L"Cha", L"ጫ");
-    AddMapping(L"Chie", L"ጬ");
-    AddMapping(L"Chee", L"ጬ");
-    AddMapping(L"Ch", L"ጭ");
-    AddMapping(L"Cho", L"ጮ");
-    AddMapping(L"Chua", L"ጯ");
-    AddMapping(L"Chwa", L"ጯ");
-    
+    AddFamily(*this, L"t", L"ተ", L"ቱ", L"ቲ", L"ታ", L"ቴ", L"ት", L"ቶ",
+        L"ቷ", nullptr, nullptr, L"ቷ");
+
+    // c family (ቸ). GFF uses 'c'; 'ch' is a documented convenience alias.
+    AddFamily(*this, L"c", L"ቸ", L"ቹ", L"ቺ", L"ቻ", L"ቼ", L"ች", L"ቾ",
+        L"ቿ", nullptr, nullptr, L"ቿ");
+    AddFamily(*this, L"ch", L"ቸ", L"ቹ", L"ቺ", L"ቻ", L"ቼ", L"ች", L"ቾ",
+        L"ቿ", nullptr, nullptr, L"ቿ");
+
+    // hh family (ኀ) with labiovelars
+    AddFamily(*this, L"hh", L"ኀ", L"ኁ", L"ኂ", L"ኃ", L"ኄ", L"ኅ", L"ኆ",
+        L"ኈ", L"ኍ", L"ኊ", L"ኋ", L"ኌ");
+
     // n family
-    AddMapping(L"ne", L"ነ");
-    AddMapping(L"nu", L"ኑ");
-    AddMapping(L"ni", L"ኒ");
-    AddMapping(L"na", L"ና");
-    AddMapping(L"nie", L"ኔ");
-    AddMapping(L"nee", L"ኔ");
-    AddMapping(L"n", L"ን");
-    AddMapping(L"no", L"ኖ");
-    AddMapping(L"nua", L"ኗ");
-    AddMapping(L"nwa", L"ኗ");
-    
-    // N/ny family
-    AddMapping(L"Ne", L"ኘ");
-    AddMapping(L"Nu", L"ኙ");
-    AddMapping(L"Ni", L"ኚ");
-    AddMapping(L"Na", L"ኛ");
-    AddMapping(L"Nie", L"ኜ");
-    AddMapping(L"N", L"ኝ");
-    AddMapping(L"No", L"ኞ");
-    AddMapping(L"Nua", L"ኟ");
-    AddMapping(L"Nwa", L"ኟ");
-    
-    // k family
-    AddMapping(L"ke", L"ከ");
-    AddMapping(L"ku", L"ኩ");
-    AddMapping(L"ki", L"ኪ");
-    AddMapping(L"ka", L"ካ");
-    AddMapping(L"kie", L"ኬ");
-    AddMapping(L"kee", L"ኬ");
-    AddMapping(L"k", L"ክ");
-    AddMapping(L"ko", L"ኮ");
-    AddMapping(L"kua", L"ኳ");
-    AddMapping(L"kwa", L"ኳ");
-    
-    // K/kk family (ኸ)
-    AddMapping(L"Ke", L"ኸ");
-    AddMapping(L"Ku", L"ኹ");
-    AddMapping(L"Ki", L"ኺ");
-    AddMapping(L"Ka", L"ኻ");
-    AddMapping(L"Kie", L"ኼ");
-    AddMapping(L"K", L"ኽ");
-    AddMapping(L"Ko", L"ኾ");
-    AddMapping(L"Kua", L"ኋ");
-    AddMapping(L"Kwa", L"ኋ");
-    
+    AddFamily(*this, L"n", L"ነ", L"ኑ", L"ኒ", L"ና", L"ኔ", L"ን", L"ኖ",
+        L"ኗ", nullptr, nullptr, L"ኗ");
+
+    // N family (ኘ)
+    AddFamily(*this, L"N", L"ኘ", L"ኙ", L"ኚ", L"ኛ", L"ኜ", L"ኝ", L"ኞ",
+        L"ኟ", nullptr, nullptr, L"ኟ");
+
+    // k family with labiovelars
+    AddFamily(*this, L"k", L"ከ", L"ኩ", L"ኪ", L"ካ", L"ኬ", L"ክ", L"ኮ",
+        L"ኰ", L"ኵ", L"ኲ", L"ኳ", L"ኴ");
+
+    // K family (ኸ) with labiovelars
+    AddFamily(*this, L"K", L"ኸ", L"ኹ", L"ኺ", L"ኻ", L"ኼ", L"ኽ", L"ኾ",
+        L"ዀ", L"ዅ", L"ዂ", L"ዃ", L"ዄ");
+
     // w family
-    AddMapping(L"we", L"ወ");
-    AddMapping(L"wu", L"ዉ");
-    AddMapping(L"wi", L"ዊ");
-    AddMapping(L"wa", L"ዋ");
-    AddMapping(L"wie", L"ዌ");
-    AddMapping(L"wee", L"ዌ");
-    AddMapping(L"w", L"ው");
-    AddMapping(L"wo", L"ዎ");
-    
+    AddFamily(*this, L"w", L"ወ", L"ዉ", L"ዊ", L"ዋ", L"ዌ", L"ው", L"ዎ");
+
     // z family
-    AddMapping(L"ze", L"ዘ");
-    AddMapping(L"zu", L"ዙ");
-    AddMapping(L"zi", L"ዚ");
-    AddMapping(L"za", L"ዛ");
-    AddMapping(L"zie", L"ዜ");
-    AddMapping(L"zee", L"ዜ");
-    AddMapping(L"z", L"ዝ");
-    AddMapping(L"zo", L"ዞ");
-    AddMapping(L"zua", L"ዟ");
-    AddMapping(L"zwa", L"ዟ");
-    
-    // Z/zh family
-    AddMapping(L"Ze", L"ዠ");
-    AddMapping(L"Zu", L"ዡ");
-    AddMapping(L"Zi", L"ዢ");
-    AddMapping(L"Za", L"ዣ");
-    AddMapping(L"Zie", L"ዤ");
-    AddMapping(L"Z", L"ዥ");
-    AddMapping(L"Zo", L"ዦ");
-    AddMapping(L"Zua", L"ዧ");
-    AddMapping(L"Zwa", L"ዧ");
-    
+    AddFamily(*this, L"z", L"ዘ", L"ዙ", L"ዚ", L"ዛ", L"ዜ", L"ዝ", L"ዞ",
+        L"ዟ", nullptr, nullptr, L"ዟ");
+
+    // Z family
+    AddFamily(*this, L"Z", L"ዠ", L"ዡ", L"ዢ", L"ዣ", L"ዤ", L"ዥ", L"ዦ",
+        L"ዧ", nullptr, nullptr, L"ዧ");
+
     // y family
-    AddMapping(L"ye", L"የ");
-    AddMapping(L"yu", L"ዩ");
-    AddMapping(L"yi", L"ዪ");
-    AddMapping(L"ya", L"ያ");
-    AddMapping(L"yie", L"ዬ");
-    AddMapping(L"yee", L"ዬ");
-    AddMapping(L"y", L"ይ");
-    AddMapping(L"yo", L"ዮ");
-    
+    AddFamily(*this, L"y", L"የ", L"ዩ", L"ዪ", L"ያ", L"ዬ", L"ይ", L"ዮ");
+
     // d family
-    AddMapping(L"de", L"ደ");
-    AddMapping(L"du", L"ዱ");
-    AddMapping(L"di", L"ዲ");
-    AddMapping(L"da", L"ዳ");
-    AddMapping(L"die", L"ዴ");
-    AddMapping(L"dee", L"ዴ");
-    AddMapping(L"d", L"ድ");
-    AddMapping(L"do", L"ዶ");
-    AddMapping(L"dua", L"ዷ");
-    AddMapping(L"dwa", L"ዷ");
-    
+    AddFamily(*this, L"d", L"ደ", L"ዱ", L"ዲ", L"ዳ", L"ዴ", L"ድ", L"ዶ",
+        L"ዷ", nullptr, nullptr, L"ዷ");
+
     // j family
-    AddMapping(L"je", L"ጀ");
-    AddMapping(L"ju", L"ጁ");
-    AddMapping(L"ji", L"ጂ");
-    AddMapping(L"ja", L"ጃ");
-    AddMapping(L"jie", L"ጄ");
-    AddMapping(L"jee", L"ጄ");
-    AddMapping(L"j", L"ጅ");
-    AddMapping(L"jo", L"ጆ");
-    AddMapping(L"jua", L"ጇ");
-    AddMapping(L"jwa", L"ጇ");
-    
-    // g family
-    AddMapping(L"ge", L"ገ");
-    AddMapping(L"gu", L"ጉ");
-    AddMapping(L"gi", L"ጊ");
-    AddMapping(L"ga", L"ጋ");
-    AddMapping(L"gie", L"ጌ");
-    AddMapping(L"gee", L"ጌ");
-    AddMapping(L"g", L"ግ");
-    AddMapping(L"go", L"ጎ");
-    AddMapping(L"gua", L"ጓ");
-    AddMapping(L"gwa", L"ጓ");
-    AddMapping(L"guie", L"ጔ");
-    
-    // G/gg family
-    AddMapping(L"Ge", L"ጘ");
-    AddMapping(L"Gu", L"ጙ");
-    AddMapping(L"Gi", L"ጚ");
-    AddMapping(L"Ga", L"ጛ");
-    AddMapping(L"Gie", L"ጜ");
-    AddMapping(L"G", L"ጝ");
-    AddMapping(L"Go", L"ጞ");
-    AddMapping(L"Gua", L"ⶓ");
-    
-    // P/pp family (ጰ)
-    AddMapping(L"Pe", L"ጰ");
-    AddMapping(L"Pu", L"ጱ");
-    AddMapping(L"Pi", L"ጲ");
-    AddMapping(L"Pa", L"ጳ");
-    AddMapping(L"Pie", L"ጴ");
-    AddMapping(L"P", L"ጵ");
-    AddMapping(L"Po", L"ጶ");
-    AddMapping(L"Pua", L"ጷ");
-    
-    // ts family (ጸ)
-    AddMapping(L"tse", L"ጸ");
-    AddMapping(L"tsu", L"ጹ");
-    AddMapping(L"tsi", L"ጺ");
-    AddMapping(L"tsa", L"ጻ");
-    AddMapping(L"tsie", L"ጼ");
-    AddMapping(L"tse", L"ጼ");
-    AddMapping(L"ts", L"ጽ");
-    AddMapping(L"tso", L"ጾ");
-    AddMapping(L"tsua", L"ጿ");
-    
+    AddFamily(*this, L"j", L"ጀ", L"ጁ", L"ጂ", L"ጃ", L"ጄ", L"ጅ", L"ጆ",
+        L"ጇ", nullptr, nullptr, L"ጇ");
+
+    // g family with labiovelars
+    AddFamily(*this, L"g", L"ገ", L"ጉ", L"ጊ", L"ጋ", L"ጌ", L"ግ", L"ጎ",
+        L"ጐ", L"ጕ", L"ጒ", L"ጓ", L"ጔ");
+
+    // T family (ጠ)
+    AddFamily(*this, L"T", L"ጠ", L"ጡ", L"ጢ", L"ጣ", L"ጤ", L"ጥ", L"ጦ",
+        L"ጧ", nullptr, nullptr, L"ጧ");
+
+    // C family (ጨ)
+    AddFamily(*this, L"C", L"ጨ", L"ጩ", L"ጪ", L"ጫ", L"ጬ", L"ጭ", L"ጮ",
+        L"ጯ", nullptr, nullptr, L"ጯ");
+
+    // P family (ጰ)
+    AddFamily(*this, L"P", L"ጰ", L"ጱ", L"ጲ", L"ጳ", L"ጴ", L"ጵ", L"ጶ",
+        L"ጷ", nullptr, nullptr, L"ጷ");
+
+    // S family (ጸ)
+    AddFamily(*this, L"S", L"ጸ", L"ጹ", L"ጺ", L"ጻ", L"ጼ", L"ጽ", L"ጾ",
+        L"ጿ", nullptr, nullptr, L"ጿ");
+
+    // SS family (ፀ)
+    AddFamily(*this, L"SS", L"ፀ", L"ፁ", L"ፂ", L"ፃ", L"ፄ", L"ፅ", L"ፆ");
+
     // f family
-    AddMapping(L"fe", L"ፈ");
-    AddMapping(L"fu", L"ፉ");
-    AddMapping(L"fi", L"ፊ");
-    AddMapping(L"fa", L"ፋ");
-    AddMapping(L"fie", L"ፌ");
-    AddMapping(L"fee", L"ፌ");
-    AddMapping(L"f", L"ፍ");
-    AddMapping(L"fo", L"ፎ");
-    AddMapping(L"fua", L"ፏ");
-    AddMapping(L"fwa", L"ፏ");
-    
+    AddFamily(*this, L"f", L"ፈ", L"ፉ", L"ፊ", L"ፋ", L"ፌ", L"ፍ", L"ፎ",
+        L"ፏ", nullptr, nullptr, L"ፏ");
+
     // p family
-    AddMapping(L"pe", L"ፐ");
-    AddMapping(L"pu", L"ፑ");
-    AddMapping(L"pi", L"ፒ");
-    AddMapping(L"pa", L"ፓ");
-    AddMapping(L"pie", L"ፔ");
-    AddMapping(L"pee", L"ፔ");
-    AddMapping(L"p", L"ፕ");
-    AddMapping(L"po", L"ፖ");
-    AddMapping(L"pua", L"ፗ");
-    AddMapping(L"pwa", L"ፗ");
+    AddFamily(*this, L"p", L"ፐ", L"ፑ", L"ፒ", L"ፓ", L"ፔ", L"ፕ", L"ፖ",
+        L"ፗ", nullptr, nullptr, L"ፗ");
+
+    // NOTE: The ዐ (pharyngeal) family and non-Amharic families (ጘ, ⶠ, ...) are
+    // intentionally omitted; GFF does not expose them on the Amharic layout.
 }
 
 const std::vector<MappingEntry>& MappingTable::GetAllMappings() const {

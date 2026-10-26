@@ -1,40 +1,66 @@
-# FidelKey Installer Configuration
+# FidelKey Installer
 
-## Requirements
-- Install native TSF service DLL
-- Install settings application
-- Register TSF service with Windows
-- Create Start Menu shortcut
-- Support uninstallation
+The installer is a custom NSIS script (`fidelkey.nsi`). NSIS was chosen over WiX
+and MSIX because TSF registration requires running `regsvr32` on a normal
+in-proc COM server, which is not possible inside a sandboxed MSIX package.
 
-## Options
-1. **WiX Toolset** - Most flexible for Windows desktop apps
-2. **MSIX** - Modern, sandboxed, but has limitations for TSF registration
-3. **Inno Setup** - Simple, script-based
+## What it installs
 
-## Recommended: WiX Toolset
-- Better control over registration
-- Supports native DLL registration
-- Creates proper Windows Installer
+- `FidelKey.exe` — Tauri settings app
+- `FidelKeyTSF.dll` — TSF text service (registered via `regsvr32 /s`)
+- Start Menu shortcut and an optional desktop shortcut
+- Add/Remove Programs entry
 
-## Installation Steps
-1. Copy TSF service DLL to system directory
-2. Register DLL with regsvr32
-3. Copy settings app to Program Files
-4. Create Start Menu shortcut
-5. Add to Add/Remove Programs
+The DLL registration writes the COM `InprocServer32` key and calls
+`ITfInputProcessorProfiles::Register` +
+`AddLanguageProfile(..., 0x045E, GUID_FidelKeyProfile, ...)` plus
+`ITfCategoryMgr::RegisterCategory(GUID_TFCAT_TIP_KEYBOARD)`.
 
-## Uninstallation Steps
-1. Unregister DLL with regsvr32 /u
-2. Remove files
-3. Remove shortcuts
-4. Clean up registry
+## Building locally
 
-## Windows Requirements
-- Windows 10 1903+ or Windows 11
-- .NET Framework not required
-- Visual C++ Redistributable may be needed
+Inputs must exist before running `makensis`:
 
-## Distribution
-- GitHub Releases
-- Microsoft Store (future)
+```powershell
+cmake -S . -B build -DBUILD_TESTS=OFF
+cmake --build build --config Release --target FidelKeyTSF
+
+cd settings-app
+npm install
+npm run tauri build -- --no-bundle
+
+cd ..
+New-Item -ItemType Directory -Force installer/dist | Out-Null
+Copy-Item build\tsf-service\Release\FidelKeyTSF.dll installer\dist\FidelKeyTSF.dll
+Copy-Item settings-app\src-tauri\target\release\FidelKey.exe installer\dist\FidelKey.exe
+
+# Optional but recommended, so the settings app runs on a clean Windows install:
+Invoke-WebRequest "https://aka.ms/vs/17/release/vc_redist.x64.exe" -OutFile dist\vc_redist.x64.exe
+
+cd installer
+makensis "/DVERSION=0.1.0" "/DSOURCE_EXE=$PWD\dist\FidelKey.exe" "/DSOURCE_DLL=$PWD\dist\FidelKeyTSF.dll" "/DSOURCE_VCREDIST=$PWD\dist\vc_redist.x64.exe" "/DICON_FILE=$PWD\..\settings-app\src-tauri\icons\icon.ico" fidelkey.nsi
+```
+
+Output: `installer/FidelKey-Setup-0.1.0.exe`.
+
+GitHub Actions does the same thing in the `installer` job and uploads the setup
+executable as an artifact.
+
+## Uninstallation
+
+The uninstaller runs `regsvr32 /u` to remove the COM registration and language
+profile before deleting files, shortcuts, and registry entries.
+
+## Requirements and caveats
+
+- Windows 10 1903+ or Windows 11 (64-bit).
+- Administrator rights are required for per-machine installation and
+  registration.
+- The TSF DLL links the C++ runtime statically. The Rust settings binary uses
+  the MSVC runtime, so the installer bundles and silently installs
+  `vc_redist.x64.exe`.
+- WebView2 is required by the settings app; it ships with Windows 11 and current
+  Windows 10.
+- A sign-out or restart may be needed on some systems before the new keyboard
+  appears in the Win+Space list.
+- The installer is not code-signed. Windows SmartScreen may warn on first run.
+- The traditional Fidel layout is not included in this version.

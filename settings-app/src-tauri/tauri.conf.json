@@ -6,21 +6,23 @@
     "frontendDist": "../dist"
   },
   "bundle": {
-    "active": true,
+    "active": false,
     "targets": "all",
-    "icon": []
+    "icon": ["icons/icon.ico", "icons/icon.png"]
   },
   "productName": "FidelKey",
-  "mainBinaryName": "FidelKey",
   "version": "0.1.0",
   "identifier": "com.fidelkey.app",
-  "plugins": {},
   "app": {
     "windows": [
       {
+        "label": "main",
         "title": "FidelKey Settings",
-        "width": 800,
-        "height": 600
+        "width": 860,
+        "height": 680,
+        "minWidth": 640,
+        "minHeight": 480,
+        "resizable": true
       }
     ],
     "security": {

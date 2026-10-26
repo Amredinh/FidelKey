@@ -1,0 +1,21 @@
+# Build outputs
+build/
+engine/build/
+tsf-service/build/
+settings-app/dist/
+settings-app/node_modules/
+settings-app/src-tauri/target/
+settings-app/src-tauri/gen/
+
+# Installer
+installer/*.exe
+installer/dist/
+
+# Editor / OS
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+Thumbs.db
+.DS_Store

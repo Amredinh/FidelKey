@@ -2,100 +2,142 @@ name: Build FidelKey
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, master, develop ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, master ]
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  VERSION: "0.1.0"
+
 jobs:
-  build-engine:
+  engine:
+    name: Engine and tests
     runs-on: windows-latest
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    
-    - name: Setup MSVC
-      uses: ilammy/msvc-dev-cmd@v1
-    
-    - name: Build and Test Engine
-      run: |
-        cd engine
-        mkdir build -Force
-        cd build
-        cmake .. -DBUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release
-        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-        cmake --build . --config Release
-        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-        echo "Running engine tests..."
-        ctest --output-on-failure -C Release
-        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-        echo "Engine tests completed successfully"
-    
-  build-tsf:
+      - uses: actions/checkout@v4
+
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Configure
+        run: cmake -S . -B build -DBUILD_TESTS=ON
+
+      - name: Build engine tests
+        run: cmake --build build --config Release --target engine_tests
+
+      - name: Run tests
+        run: ctest --test-dir build -C Release --output-on-failure
+
+  tsf:
+    name: TSF text service
     runs-on: windows-latest
-    needs: [build-engine]
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    
-    - name: Setup MSVC
-      uses: ilammy/msvc-dev-cmd@v1
-    
-    - name: Build TSF Service
-      run: |
-        cd tsf-service
-        mkdir build -Force
-        cd build
-        cmake .. -DCMAKE_BUILD_TYPE=Release
-        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-        cmake --build . --config Release
-        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-        echo "TSF service built successfully"
-    
-    - name: Upload TSF artifacts
-      uses: actions/upload-artifact@v4
-      if: success()
-      with:
-        name: fidelkey-tsf
-        path: tsf-service/build/Release/*.dll
-        if-no-files-found: ignore
-    
-  build-settings:
+      - uses: actions/checkout@v4
+
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Configure
+        run: cmake -S . -B build -DBUILD_TESTS=OFF
+
+      - name: Build
+        run: cmake --build build --config Release --target FidelKeyTSF
+
+      - name: Upload DLL
+        uses: actions/upload-artifact@v4
+        with:
+          name: fidelkey-tsf
+          path: build/tsf-service/Release/FidelKeyTSF.dll
+          if-no-files-found: error
+
+  settings:
+    name: Settings app
     runs-on: windows-latest
-    needs: [build-engine]
-    continue-on-error: true
-    
+
+    defaults:
+      run:
+        working-directory: settings-app
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-    
-    - name: Setup Rust
-      uses: dtolnay/rust-toolchain@stable
-    
-    - name: Install Tauri CLI
-      run: cargo install tauri-cli --version "^2.0.0" --locked 2>&1 | tail -5
-    
-    - name: Build Tauri Settings App (UNFINISHED - may fail)
-      run: |
-        cd settings-app
-        if (Test-Path "package.json") {
-          npm ci
-          npm run tauri build 2>&1 | tail -20
-        } else {
-          echo "Settings app not yet implemented"
-        }
-    
-    - name: Upload settings artifacts
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: fidelkey-settings
-        path: settings-app/src-tauri/target/release/bundle/
-        if-no-files-found: ignore
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install npm dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Build settings app
+        run: npm run tauri build -- --no-bundle
+
+      - name: Upload executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: fidelkey-settings
+          path: settings-app/src-tauri/target/release/FidelKey.exe
+          if-no-files-found: error
+
+  installer:
+    name: Installer
+    runs-on: windows-latest
+    needs: [tsf, settings]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download TSF service
+        uses: actions/download-artifact@v4
+        with:
+          name: fidelkey-tsf
+          path: installer/dist/tsf
+
+      - name: Download settings app
+        uses: actions/download-artifact@v4
+        with:
+          name: fidelkey-settings
+          path: installer/dist/app
+
+      - name: Prepare installer inputs
+        run: |
+          New-Item -ItemType Directory -Force installer/dist | Out-Null
+          Copy-Item "installer/dist/app/FidelKey.exe" "installer/dist/FidelKey.exe" -Force
+          Copy-Item "installer/dist/tsf/FidelKeyTSF.dll" "installer/dist/FidelKeyTSF.dll" -Force
+          if (!(Test-Path "installer/dist/FidelKey.exe") -or !(Test-Path "installer/dist/FidelKeyTSF.dll")) { throw "Missing installer inputs" }
+
+      - name: Download VC++ redistributable
+        run: |
+          Invoke-WebRequest -Uri "https://aka.ms/vs/17/release/vc_redist.x64.exe" -OutFile "installer/dist/vc_redist.x64.exe" -UseBasicParsing
+          if (!(Test-Path "installer/dist/vc_redist.x64.exe")) { throw "Failed to download vc_redist" }
+
+      - name: Install NSIS
+        run: |
+          $makensis = "${env:ProgramFiles(x86)}\NSIS\makensis.exe"
+          if (!(Test-Path $makensis)) {
+            choco install nsis -y --no-progress
+          }
+
+      - name: Build installer
+        working-directory: installer
+        run: |
+          $makensis = "${env:ProgramFiles(x86)}\NSIS\makensis.exe"
+          & $makensis "/DVERSION=$env:VERSION" "/DSOURCE_EXE=$PWD\dist\FidelKey.exe" "/DSOURCE_DLL=$PWD\dist\FidelKeyTSF.dll" "/DSOURCE_VCREDIST=$PWD\dist\vc_redist.x64.exe" "/DICON_FILE=$PWD\..\settings-app\src-tauri\icons\icon.ico" "fidelkey.nsi"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: FidelKey-Setup
+          path: installer/FidelKey-Setup-${{ env.VERSION }}.exe
+          if-no-files-found: error

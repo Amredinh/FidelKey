@@ -1,13 +1,20 @@
 # Build FidelKey TSF Service
 
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.20)
 project(FidelKeyTSF LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Build engine as static library (needed for TSF)
-add_subdirectory(../engine engine-build EXCLUDE_FROM_ALL)
+if(MSVC)
+    add_compile_options(/utf-8)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif()
+
+# Allow both a standalone build of this directory and inclusion from the root.
+if(NOT TARGET fidelkey_engine)
+    add_subdirectory(../engine engine-build EXCLUDE_FROM_ALL)
+endif()
 
 add_library(FidelKeyTSF SHARED
     src/dllmain.cpp
@@ -21,18 +28,28 @@ target_include_directories(FidelKeyTSF
         ../engine/include
 )
 
-target_link_libraries(FidelKeyTSF
+target_compile_definitions(FidelKeyTSF
     PRIVATE
-        msctf
-        ole32
-        uuid
-        fidelkey_engine
+        UNICODE
+        _UNICODE
+        WIN32_LEAN_AND_MEAN
+        NOMINMAX
+        _WIN32_WINNT=0x0A00
 )
 
-# For Windows
+target_link_libraries(FidelKeyTSF
+    PRIVATE
+        fidelkey_engine
+        msctf
+        ole32
+        oleaut32
+        uuid
+        advapi32
+)
+
 if(WIN32)
     set_target_properties(FidelKeyTSF PROPERTIES
-        WINDOWS_EXPORT_ALL_SYMBOLS ON
+        OUTPUT_NAME "FidelKeyTSF"
         PREFIX ""
     )
 endif()

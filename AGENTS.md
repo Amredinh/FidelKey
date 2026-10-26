@@ -16,9 +16,9 @@ FidelKey is a lightweight, free, ad-free Amharic keyboard for Windows 10/11 usin
 
 ## Status
 - **Start Date:** 2026-10-24
-- **Status:** Milestone 3 - TSF service implementation (IN PROGRESS)
-- **Phase:** Building full app (engine validated, TSF skeleton built, settings app built)
-- **Build State:** Engine + TSF build in CI, settings app in CI
+- **Status:** Milestone 4/5 - full app implemented, awaiting CI validation
+- **Phase:** Phonetic engine, TSF service, settings app and NSIS installer written
+- **Build State:** NOT verified since the full rewrite. Run the workflow and fix failures.
 
 ## Activity Log
 
@@ -34,41 +34,57 @@ FidelKey is a lightweight, free, ad-free Amharic keyboard for Windows 10/11 usin
 - [x] Implemented trie-based prefix matching
 - [x] Implemented mapping table with GFF-style mappings
 - [x] Implemented PhoneticEngine with composition logic
-- [x] Created expanded tests (selam, basic mappings, backspace, mixed, punctuation, overlapping)
 - [x] Set up CMake build for engine
 - [x] Created GitHub Actions workflow for Windows builds
-- [x] Pushed to GitHub, CI build-engine job SUCCEEDED (30s)
-- [x] Engine tests passed in CI
 - [x] Added TSF service skeleton with COM interfaces
 - [x] Added Tauri settings app skeleton
-- [x] Updated TSF TextService with composition support
-- [x] Updated CI workflow to build TSF service
-- [x] Built out Tauri settings app with UI screens
-- [x] Added Cargo.toml and main.rs for Tauri
+- [x] Built out Tauri settings app UI screens
+
+### 2026-10-25
+- [x] Audited existing code and found the Release build compiled out all asserts
+- [x] Corrected the mapping table against GFF 3.3 (`x`=ሸ, `hh`=ኀ, `H`=ሐ,
+      `ss`=ሠ, `S`=ጸ, `SS`=ፀ, `N`=ኘ, `T`=ጠ, `C`=ጨ, `K`=ኸ, `P`=ጰ, glottal vowels)
+- [x] Removed duplicate `tse` mapping and added labiovelar `ue/uu/ui/ua/uie`
+- [x] Replaced `assert` tests with a Release-safe harness and exhaustive table
+      coverage (all families, orders, labiovelars, aliases, duplicates)
+- [x] Refactored engine to greedy whole-word conversion, removing mid-word commits
+- [x] Implemented real TSF composition via `ITfEditSession`, `ITfComposition`,
+      `ITfKeyEventSink` and `ITfCompositionSink`
+- [x] Implemented real COM + TSF registration (`ITfInputProcessorProfiles`,
+      `ITfCategoryMgr`, Amharic lang id `0x045E`)
+- [x] Fixed Tauri 2 scaffold (vite config, tsconfig, `src/main.rs`, `build.rs`,
+      capabilities, icon, no-bundle build) and added settings persistence commands
+- [x] Added root CMake build, UTF-8 compile flag and static MSVC runtime
+- [x] Added NSIS installer (`installer/fidelkey.nsi`) and installer CI job
+- [x] Rewrote the GitHub Actions workflow (engine, TSF, settings, installer)
 
 ## Milestones
-1. **Milestone 1 — Mapping specification** (VALIDATED - CI passed)
-2. **Milestone 2 — Conversion engine** (IN PROGRESS - engine built and tested)
-3. **Milestone 3 — Windows integration (TSF)** (IN PROGRESS - skeleton + COM interfaces)
-4. **Milestone 4 — Settings interface (Tauri)** (SKELETON - basic UI implemented)
-5. **Milestone 5 — Installer**
-6. **Milestone 6 — Testing and release**
+1. **Milestone 1 — Mapping specification** (DONE, GFF 3.3)
+2. **Milestone 2 — Conversion engine** (IMPLEMENTED, tests written, CI unverified)
+3. **Milestone 3 — Windows integration (TSF)** (IMPLEMENTED, needs real Windows testing)
+4. **Milestone 4 — Settings interface (Tauri)** (IMPLEMENTED, CI unverified)
+5. **Milestone 5 — Installer** (IMPLEMENTED with NSIS, CI unverified)
+6. **Milestone 6 — Testing and release** (NOT STARTED)
 
 ## Current Focus
-- TSF service implementation in progress
-- Settings app basic UI implemented
-- Need to add proper COM registration
-- Need to implement TSF composition framework
-- Need to create installer
+- Push the rewrite and watch the four CI jobs
+- Fix compile/link errors reported by CI
+- Install the produced setup on a real Windows machine and test Notepad first
 
 ## Known Issues / Uncertainties
-- TSF composition framework not fully implemented
-- Registration needs full implementation
-- Settings app needs more features (config persistence, IPC)
-- No installer yet
+- The full rewrite has not been compiled yet. Treat CI as the first compiler.
+- TSF registration, composition lifetime and Win+Space activation must be tested
+  on a real Windows install, not just compiled.
+- Traditional Fidel physical layout is documented but not implemented.
+- The layout setting is persisted by the settings app but the TSF service still
+  always uses the phonetic layout (only layout available).
+- No sign-out/restart handling is implemented for newly registered profiles.
+- Installer is unsigned; SmartScreen will warn.
+- Password/secure input contexts are not specially filtered yet.
 
 ## Next Actions
-1. Implement TSF composition framework
-2. Add config persistence to settings app
-3. Create installer configuration
-4. Test on Windows via CI
+1. Run the GitHub Actions workflow; fix every failure.
+2. Verify the engine test job genuinely fails on a broken mapping.
+3. Test the installed keyboard in Notepad, Word, and a browser.
+4. Verify uninstall removes the profile and files cleanly.
+5. Implement the traditional layout or explicitly drop it from the requirements.
