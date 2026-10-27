@@ -10,6 +10,8 @@ extern HINSTANCE g_hInstance;
 
 namespace {
 
+HRESULT GetModulePath(wchar_t* path, DWORD cchPath);
+
 class CFidelKeyClassFactory : public IClassFactory {
 public:
     CFidelKeyClassFactory() : m_cRef(1) {}
@@ -100,10 +102,29 @@ HRESULT RegisterTextService(const wchar_t* dllPath) {
         const wchar_t* description = L"FidelKey Amharic (Phonetic)";
         // Amharic (Ethiopia) language id.
         const LANGID amharic = 0x045E;
+
+        // Use the installed settings executable as the language-bar icon source.
+        std::wstring iconPath;
+        wchar_t modulePath[MAX_PATH] = {};
+        if (SUCCEEDED(GetModulePath(modulePath, MAX_PATH))) {
+            iconPath.assign(modulePath);
+            const size_t slash = iconPath.find_last_of(L"\\/");
+            if (slash != std::wstring::npos) {
+                iconPath.resize(slash + 1);
+                iconPath += L"FidelKey.exe";
+                if (GetFileAttributesW(iconPath.c_str()) == INVALID_FILE_ATTRIBUTES) {
+                    iconPath.clear();
+                }
+            } else {
+                iconPath.clear();
+            }
+        }
+
         hr = profiles->AddLanguageProfile(
             CLSID_FidelKeyTextService, amharic, GUID_FidelKeyProfile,
             description, static_cast<ULONG>(wcslen(description)),
-            nullptr, 0, 0);
+            iconPath.empty() ? nullptr : iconPath.c_str(),
+            static_cast<ULONG>(iconPath.size()), 0);
     }
     profiles->Release();
 

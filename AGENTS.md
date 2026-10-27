@@ -75,6 +75,16 @@ FidelKey is a lightweight, free, ad-free Amharic keyboard for Windows 10/11 usin
       publisher to `Afbix` (Tauri identifier and `bundle.publisher`; installer
       CompanyName/Publisher updated to match)
 
+### 2026-10-27
+- [x] Imported the final logo, removed the corner "K" watermark, and rebuilt a
+      clean 1024 px master (`assets/branding/`)
+- [x] Generated the Windows icon set (16-256 px ICO and PNGs) and Store 1:1
+      exports (300/150/71/1080 px)
+- [x] Wired the TSF language profile to use the installed `FidelKey.exe` icon
+- [ ] MSIX output: Tauri emits EXE/MSI only; a pure MSIX cannot register a
+      machine-wide TSF TIP reliably. The Store EXE/MSI path is the supported
+      route (signed installer, silent `/S`, offline WebView2).
+
 ## Milestones
 1. **Milestone 1 — Mapping specification** (DONE, GFF 3.3)
 2. **Milestone 2 — Conversion engine** (DONE, engine tests pass in CI)
@@ -102,8 +112,10 @@ FidelKey is a lightweight, free, ad-free Amharic keyboard for Windows 10/11 usin
 - Microsoft Store path: Tauri produces EXE/MSI, not MSIX; Partner Center's
   Win32 app flow requires a code-signed, silent (`/S`) installer and an offline
   WebView2 installer. The current custom setup is neither signed nor silent-tested.
-- No final logo yet: app icons are placeholders and the TSF language profile is
-  registered with a null icon.
+- MSIX is not a viable package for the keyboard itself: Tauri does not produce
+  MSIX, and MSIX has no TSF profile/category registration extension. TSF needs
+  the classic elevated installer (COM + `ITfInputProcessorProfiles` registration).
+- Final logo is in place; verify it at 16/24/32 px and in the language bar.
 - Password/secure input contexts are not specially filtered yet.
 
 ## Next Actions
@@ -112,8 +124,8 @@ FidelKey is a lightweight, free, ad-free Amharic keyboard for Windows 10/11 usin
 3. Verify uninstall removes the profile, files, and shortcuts cleanly.
 4. Verify the engine test job genuinely fails on a broken mapping.
 5. Address runtime TSF issues found during testing.
-6. Replace the placeholder icons with the final logo and wire it into the TSF
-   language profile; test at 16-44 px.
-7. Add an offline WebView2 installer, sign the setup, test `/S`, then submit the
-   reset Win32 installer through Partner Center.
-8. Implement the traditional layout or explicitly drop it.
+6. Verify the new icons and the TSF language-bar icon.
+7. Resolve Store packaging: use the EXE/MSI route and drop MSIX for the keyboard.
+8. Add an offline WebView2 installer, sign the setup, test `/S`, then submit the
+   Win32 installer through Partner Center.
+9. Implement the traditional layout or explicitly drop it.
