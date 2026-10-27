@@ -18,7 +18,7 @@ FidelKey is a lightweight, free, ad-free Amharic keyboard for Windows 10/11 usin
 - **Start Date:** 2026-10-24
 - **Status:** Milestone 5/6 - all CI jobs green, installer built; runtime testing pending
 - **Phase:** Phonetic engine, TSF service, settings app and NSIS installer compile and package in CI
-- **Build State:** Verified on 2026-10-26 by CI run `40274034101`: engine tests, TSF DLL, settings app and `FidelKey-Setup-0.1.0.exe` all succeeded.
+- **Build State:** Verified on 2026-10-27 by CI run `40570837189`: engine tests, TSF DLL (including the language-bar icon), settings app and `FidelKey-Setup-0.1.0.exe` all succeeded.
 
 ## Activity Log
 
@@ -81,6 +81,7 @@ FidelKey is a lightweight, free, ad-free Amharic keyboard for Windows 10/11 usin
 - [x] Generated the Windows icon set (16-256 px ICO and PNGs) and Store 1:1
       exports (300/150/71/1080 px)
 - [x] Wired the TSF language profile to use the installed `FidelKey.exe` icon
+- [x] CI run `40570837189` green; installer rebuilt with the new icons
 - [ ] MSIX output: Tauri emits EXE/MSI only; a pure MSIX cannot register a
       machine-wide TSF TIP reliably. The Store EXE/MSI path is the supported
       route (signed installer, silent `/S`, offline WebView2).
