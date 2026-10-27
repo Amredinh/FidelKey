@@ -29,10 +29,11 @@ SetCompressor /SOLID lzma
 
 VIProductVersion "${VERSION}.0"
 VIAddVersionKey "ProductName" "FidelKey"
+VIAddVersionKey "CompanyName" "Afbix"
 VIAddVersionKey "FileDescription" "FidelKey Amharic Keyboard Setup"
 VIAddVersionKey "FileVersion" "${VERSION}"
 VIAddVersionKey "ProductVersion" "${VERSION}"
-VIAddVersionKey "LegalCopyright" "FidelKey contributors"
+VIAddVersionKey "LegalCopyright" "Copyright (C) 2026 Afbix"
 
 !define MUI_ABORTWARNING
 !define MUI_FINISHPAGE_RUN "$INSTDIR\FidelKey.exe"
@@ -84,7 +85,7 @@ Section "FidelKey" SecMain
 
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\FidelKey" "DisplayName" "FidelKey Amharic Keyboard"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\FidelKey" "DisplayVersion" "${VERSION}"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\FidelKey" "Publisher" "FidelKey"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\FidelKey" "Publisher" "Afbix"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\FidelKey" "DisplayIcon" "$INSTDIR\FidelKey.exe"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\FidelKey" "InstallLocation" "$INSTDIR"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\FidelKey" "UninstallString" '"$INSTDIR\Uninstall.exe"'

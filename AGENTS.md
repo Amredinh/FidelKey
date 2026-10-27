@@ -71,6 +71,9 @@ FidelKey is a lightweight, free, ad-free Amharic keyboard for Windows 10/11 usin
       register the x64 DLL via `Sysnative\regsvr32.exe` from the 32-bit stub
 - [x] Confirmed the full pipeline produces `FidelKey-Setup-0.1.0.exe` (25.5 MB,
       includes the VC++ redistributable)
+- [x] Set the Microsoft Store package identity to `afbix.fidelkey` and the
+      publisher to `Afbix` (Tauri identifier and `bundle.publisher`; installer
+      CompanyName/Publisher updated to match)
 
 ## Milestones
 1. **Milestone 1 — Mapping specification** (DONE, GFF 3.3)
@@ -96,6 +99,11 @@ FidelKey is a lightweight, free, ad-free Amharic keyboard for Windows 10/11 usin
   always uses the phonetic layout (only layout available).
 - Installer is unsigned; SmartScreen will warn. The installer stub is 32-bit and
   registers the x64 DLL through `Sysnative`.
+- Microsoft Store path: Tauri produces EXE/MSI, not MSIX; Partner Center's
+  Win32 app flow requires a code-signed, silent (`/S`) installer and an offline
+  WebView2 installer. The current custom setup is neither signed nor silent-tested.
+- No final logo yet: app icons are placeholders and the TSF language profile is
+  registered with a null icon.
 - Password/secure input contexts are not specially filtered yet.
 
 ## Next Actions
@@ -104,4 +112,8 @@ FidelKey is a lightweight, free, ad-free Amharic keyboard for Windows 10/11 usin
 3. Verify uninstall removes the profile, files, and shortcuts cleanly.
 4. Verify the engine test job genuinely fails on a broken mapping.
 5. Address runtime TSF issues found during testing.
-6. Implement the traditional layout or explicitly drop it; then sign for release.
+6. Replace the placeholder icons with the final logo and wire it into the TSF
+   language profile; test at 16-44 px.
+7. Add an offline WebView2 installer, sign the setup, test `/S`, then submit the
+   reset Win32 installer through Partner Center.
+8. Implement the traditional layout or explicitly drop it.

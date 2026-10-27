@@ -8,11 +8,12 @@
   "bundle": {
     "active": false,
     "targets": "all",
+    "publisher": "Afbix",
     "icon": ["icons/icon.ico", "icons/icon.png"]
   },
   "productName": "FidelKey",
   "version": "0.1.0",
-  "identifier": "com.fidelkey.app",
+  "identifier": "afbix.fidelkey",
   "app": {
     "windows": [
       {
