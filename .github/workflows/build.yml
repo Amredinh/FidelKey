@@ -89,6 +89,64 @@ jobs:
           path: settings-app/src-tauri/target/release/FidelKey.exe
           if-no-files-found: error
 
+  msix:
+    name: MSIX package
+    runs-on: windows-latest
+    needs: [tsf, settings]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download TSF service
+        uses: actions/download-artifact@v4
+        with:
+          name: fidelkey-tsf
+          path: installer/msix/dist/tsf
+
+      - name: Download settings app
+        uses: actions/download-artifact@v4
+        with:
+          name: fidelkey-settings
+          path: installer/msix/dist/app
+
+      - name: Prepare package layout
+        run: |
+          New-Item -ItemType Directory -Force installer/msix/layout/Assets | Out-Null
+          Copy-Item "installer/msix/dist/app/FidelKey.exe" "installer/msix/layout/FidelKey.exe" -Force
+          Copy-Item "installer/msix/dist/tsf/FidelKeyTSF.dll" "installer/msix/layout/FidelKeyTSF.dll" -Force
+          Copy-Item "installer/msix/Assets/*" "installer/msix/layout/Assets/" -Force
+
+          $publisher = "${{ vars.MSIX_PUBLISHER }}"
+          if ([string]::IsNullOrWhiteSpace($publisher)) { $publisher = "CN=Afbix" }
+          $manifest = Get-Content "installer/msix/AppxManifest.xml" -Raw
+          $manifest = $manifest.Replace("__PUBLISHER__", $publisher).Replace("__VERSION__", "$env:VERSION.0")
+          Set-Content -LiteralPath "installer/msix/layout/AppxManifest.xml" -Value $manifest -Encoding UTF8
+
+          if (!(Test-Path "installer/msix/layout/FidelKey.exe") -or !(Test-Path "installer/msix/layout/FidelKeyTSF.dll")) { throw "Missing MSIX inputs" }
+
+      - name: Locate MakeAppx
+        id: makeappx
+        run: |
+          $makeappx = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin" -Filter makeappx.exe -Recurse -ErrorAction SilentlyContinue |
+            Where-Object { $_.FullName -match '\\x64\\makeappx.exe$' } |
+            Sort-Object FullName -Descending |
+            Select-Object -First 1 -ExpandProperty FullName
+          if (!$makeappx) { throw "makeappx.exe not found in the Windows SDK" }
+          "path=$makeappx" >> $env:GITHUB_OUTPUT
+
+      - name: Build MSIX
+        run: |
+          & "${{ steps.makeappx.outputs.path }}" pack /d "installer/msix/layout" /p "installer/msix/FidelKey_$($env:VERSION)_x64.msix" /o
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if (!(Test-Path "installer/msix/FidelKey_$($env:VERSION)_x64.msix")) { throw "MSIX was not created" }
+
+      - name: Upload MSIX
+        uses: actions/upload-artifact@v4
+        with:
+          name: FidelKey-MSIX
+          path: installer/msix/FidelKey_${{ env.VERSION }}_x64.msix
+          if-no-files-found: error
+
   installer:
     name: Installer
     runs-on: windows-latest

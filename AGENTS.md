@@ -16,9 +16,9 @@ FidelKey is a lightweight, free, ad-free Amharic keyboard for Windows 10/11 usin
 
 ## Status
 - **Start Date:** 2026-10-24
-- **Status:** Milestone 5/6 - all CI jobs green, installer built; runtime testing pending
-- **Phase:** Phonetic engine, TSF service, settings app and NSIS installer compile and package in CI
-- **Build State:** Verified on 2026-10-27 by CI run `40570837189`: engine tests, TSF DLL (including the language-bar icon), settings app and `FidelKey-Setup-0.1.0.exe` all succeeded.
+- **Status:** Milestone 6 - installer green; best-effort MSIX packaging added, CI verification pending
+- **Phase:** Phonetic engine, TSF service, settings app, NSIS installer and MSIX package pipeline
+- **Build State:** Last verified on 2026-10-27 by CI run `40570837189`: engine tests, TSF DLL (including the language-bar icon), settings app and `FidelKey-Setup-0.1.0.exe` all succeeded. The new MSIX job has not run yet.
 
 ## Activity Log
 
@@ -82,9 +82,14 @@ FidelKey is a lightweight, free, ad-free Amharic keyboard for Windows 10/11 usin
       exports (300/150/71/1080 px)
 - [x] Wired the TSF language profile to use the installed `FidelKey.exe` icon
 - [x] CI run `40570837189` green; installer rebuilt with the new icons
-- [ ] MSIX output: Tauri emits EXE/MSI only; a pure MSIX cannot register a
-      machine-wide TSF TIP reliably. The Store EXE/MSI path is the supported
-      route (signed installer, silent `/S`, offline WebView2).
+- [x] Added best-effort MSIX packaging: `installer/msix/AppxManifest.xml`,
+      generated tile/Store/splash assets, and a `msix` CI job using `MakeAppx`
+- [x] Added first-run elevation path in the settings app: `--install-tsf` copies
+      the DLL/exe to `C:\Program Files\FidelKey` and calls `regsvr32`, with a
+      matching `--uninstall-tsf`; the app shows Enable/Remove keyboard controls
+- [ ] Verify the MSIX CI job and package validation (`msix` artifact)
+- [ ] Store submission: publisher identity must match Partner Center; the
+      `allowElevation` capability and system-wide TSF install may be rejected
 
 ## Milestones
 1. **Milestone 1 — Mapping specification** (DONE, GFF 3.3)
@@ -95,7 +100,8 @@ FidelKey is a lightweight, free, ad-free Amharic keyboard for Windows 10/11 usin
 6. **Milestone 6 — Testing and release** (IN PROGRESS, manual testing only)
 
 ## Current Focus
-- Install the CI-built setup on a real Windows machine and test Notepad first
+- Verify the new MSIX CI job and the first-run elevated registration path
+- Install the CI-built setup/MSIX on a real Windows machine and test Notepad first
 - Verify TSF activation, composition, backspace, punctuation and uninstall
 - Decide whether to implement the traditional layout before release
 
@@ -116,6 +122,12 @@ FidelKey is a lightweight, free, ad-free Amharic keyboard for Windows 10/11 usin
 - MSIX is not a viable package for the keyboard itself: Tauri does not produce
   MSIX, and MSIX has no TSF profile/category registration extension. TSF needs
   the classic elevated installer (COM + `ITfInputProcessorProfiles` registration).
+- The MSIX attempt packages a full-trust settings app plus a first-run elevated
+  helper; it is not a pure MSIX TSF registration and may fail Store certification.
+  Its manifest publisher defaults to `CN=Afbix`; set `MSIX_PUBLISHER` to the
+  Partner Center identity before submission.
+- The MSIX does not clean up `C:\Program Files\FidelKey` if the package is
+  uninstalled without using the app's Remove keyboard control.
 - Final logo is in place; verify it at 16/24/32 px and in the language bar.
 - Password/secure input contexts are not specially filtered yet.
 
@@ -126,7 +138,8 @@ FidelKey is a lightweight, free, ad-free Amharic keyboard for Windows 10/11 usin
 4. Verify the engine test job genuinely fails on a broken mapping.
 5. Address runtime TSF issues found during testing.
 6. Verify the new icons and the TSF language-bar icon.
-7. Resolve Store packaging: use the EXE/MSI route and drop MSIX for the keyboard.
-8. Add an offline WebView2 installer, sign the setup, test `/S`, then submit the
-   Win32 installer through Partner Center.
+7. Verify the `FidelKey-MSIX` artifact, set the Store publisher identity, and
+   test the first-run UAC registration; assess Store certification risk.
+8. If MSIX is rejected, fall back to the EXE/MSI route: add an offline WebView2
+   installer, sign the setup, test `/S`, then submit through Partner Center.
 9. Implement the traditional layout or explicitly drop it.

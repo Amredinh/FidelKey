@@ -10,6 +10,11 @@ interface Settings {
   show_typing_test: boolean;
 }
 
+interface KeyboardStatus {
+  installed: boolean;
+  packaged: boolean;
+}
+
 interface Family {
   key: string;
   forms: string[];
@@ -75,6 +80,8 @@ function App() {
   const [settings, setSettings] = useState<Settings>({ layout: "phonetic", show_typing_test: true });
   const [status, setStatus] = useState("");
   const [testText, setTestText] = useState("");
+  const [keyboard, setKeyboard] = useState<KeyboardStatus | null>(null);
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -84,6 +91,12 @@ function App() {
         if (!cancelled) setSettings(normalize(loaded));
       } catch {
         if (!cancelled) setStatus("Browser preview: settings persistence requires the desktop app.");
+      }
+      try {
+        const state = await invoke<KeyboardStatus>("keyboard_status");
+        if (!cancelled) setKeyboard(state);
+      } catch {
+        if (!cancelled) setKeyboard(null);
       }
     })();
     return () => {
@@ -107,6 +120,44 @@ function App() {
       setStatus("Could not open Windows settings: " + String(error));
     }
   };
+
+  const installKeyboard = async () => {
+    setBusy(true);
+    setStatus("Waiting for administrator approval...");
+    try {
+      await invoke("install_keyboard");
+      setKeyboard(await invoke<KeyboardStatus>("keyboard_status"));
+      setStatus("Keyboard installed. Press Win+Space and choose FidelKey Amharic (Phonetic).");
+    } catch (error) {
+      setStatus("Could not enable the keyboard: " + String(error));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const removeKeyboard = async () => {
+    setBusy(true);
+    setStatus("Removing the keyboard...");
+    try {
+      await invoke("uninstall_keyboard");
+      setKeyboard(await invoke<KeyboardStatus>("keyboard_status"));
+      setStatus("Keyboard removed. If it still appears in the language list, sign out and back in.");
+    } catch (error) {
+      setStatus("Could not remove the keyboard: " + String(error));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const keyboardButtonStyle = {
+    padding: "10px 16px",
+    borderRadius: 6,
+    border: "1px solid #1f6feb",
+    background: "#1f6feb",
+    color: "#fff",
+    cursor: busy ? "default" : "pointer",
+    opacity: busy ? 0.7 : 1,
+  } as CSSProperties;
 
   return (
     <div style={{ fontFamily: "Segoe UI, Arial, sans-serif", maxWidth: 900, margin: "0 auto", padding: 24, color: "#1c1c1c" }}>
@@ -143,9 +194,45 @@ function App() {
           <p><strong>Current layout:</strong> Phonetic (Latin to Amharic)</p>
 
           <h2>Setup</h2>
+
+          {keyboard && keyboard.packaged && !keyboard.installed && (
+            <div style={{ marginBottom: 16, padding: "12px 14px", background: "#fff8e6", border: "1px solid #e8c56b", borderRadius: 6 }}>
+              <p style={{ marginTop: 0 }}>
+                The Store version needs one administrator approval to register the system keyboard.
+              </p>
+              <button onClick={installKeyboard} disabled={busy} style={keyboardButtonStyle}>
+                {busy ? "Waiting for approval..." : "Enable FidelKey keyboard"}
+              </button>
+            </div>
+          )}
+
+          {keyboard && keyboard.packaged && keyboard.installed && (
+            <p>
+              <strong>Keyboard installed.</strong>{" "}
+              <button
+                onClick={removeKeyboard}
+                disabled={busy}
+                style={{ ...keyboardButtonStyle, background: "#fff", color: "#1c1c1c", border: "1px solid #ccc" }}
+              >
+                {busy ? "Removing..." : "Remove keyboard"}
+              </button>
+            </p>
+          )}
+
+          {keyboard && !keyboard.packaged && (
+            <p>
+              {keyboard.installed
+                ? "The keyboard was registered by the FidelKey installer."
+                : "Run the FidelKey installer to register the keyboard."}
+            </p>
+          )}
+
           <ol>
-            <li>Run the FidelKey installer (it registers the keyboard automatically).</li>
-            <li>Press <kbd>Win</kbd> + <kbd>Space</kbd> and select <strong>FidelKey Amharic (Phonetic)</strong>.</li>
+            {(!keyboard || !keyboard.packaged || keyboard.installed) ? (
+              <li>Press <kbd>Win</kbd> + <kbd>Space</kbd> and select <strong>FidelKey Amharic (Phonetic)</strong>.</li>
+            ) : (
+              <li>After enabling the keyboard, press <kbd>Win</kbd> + <kbd>Space</kbd> and select <strong>FidelKey Amharic (Phonetic)</strong>.</li>
+            )}
             <li>Type Latin letters and they become Fidel, for example <code>selam</code> becomes ሰላም.</li>
           </ol>
           <button onClick={openLanguageSettings} style={{ padding: "10px 16px", borderRadius: 6, border: "1px solid #1f6feb", background: "#1f6feb", color: "#fff", cursor: "pointer" }}>
@@ -194,6 +281,33 @@ function App() {
             />{" "}
             Show the practice area on the Home screen
           </label>
+
+          <h2>Keyboard</h2>
+          {keyboard && keyboard.packaged ? (
+            <div style={{ marginBottom: 10 }}>
+              <p style={{ marginTop: 0 }}>
+                {keyboard.installed
+                  ? "The FidelKey system keyboard is installed."
+                  : "The Store package needs one administrator approval to register the system keyboard."}
+              </p>
+              <button
+                onClick={keyboard.installed ? removeKeyboard : installKeyboard}
+                disabled={busy}
+                style={{
+                  ...keyboardButtonStyle,
+                  background: keyboard.installed ? "#fff" : "#1f6feb",
+                  color: keyboard.installed ? "#1c1c1c" : "#fff",
+                  border: keyboard.installed ? "1px solid #ccc" : "1px solid #1f6feb",
+                }}
+              >
+                {busy ? "Working..." : keyboard.installed ? "Remove keyboard" : "Enable FidelKey keyboard"}
+              </button>
+            </div>
+          ) : (
+            <p style={{ color: "#666" }}>
+              The keyboard is registered by the FidelKey installer. Use its uninstall entry to remove it.
+            </p>
+          )}
 
           <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
             <button onClick={save} style={{ padding: "10px 20px", borderRadius: 6, border: "1px solid #1f6feb", background: "#1f6feb", color: "#fff", cursor: "pointer" }}>
