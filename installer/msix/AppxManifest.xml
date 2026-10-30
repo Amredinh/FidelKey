@@ -7,7 +7,7 @@
   IgnorableNamespaces="uap uap10 rescap">
 
   <Identity
-    Name="Afbix.FidelKey – Amharic Keyboard"
+    Name="Afbix.FidelKeyAmharicKeyboard"
     Publisher="CN=1DE27A23-6791-4654-8220-956F0BBED2A8"
     Version="__VERSION__"
     ProcessorArchitecture="x64" />
