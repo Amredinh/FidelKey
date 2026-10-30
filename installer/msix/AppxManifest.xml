@@ -38,7 +38,6 @@
     <Application
       Id="FidelKey"
       Executable="FidelKey.exe"
-      EntryPoint="Windows.FullTrustApplication"
       uap10:TrustLevel="mediumIL"
       uap10:RuntimeBehavior="win32App">
       <uap:VisualElements
