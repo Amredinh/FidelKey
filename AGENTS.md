@@ -16,9 +16,9 @@ FidelKey is a lightweight, free, ad-free Amharic keyboard for Windows 10/11 usin
 
 ## Status
 - **Start Date:** 2026-10-24
-- **Status:** Milestone 6 - installer green; best-effort MSIX packaging added, CI verification pending
+- **Status:** Milestone 6 - installer and best-effort MSIX both build in CI; runtime testing pending
 - **Phase:** Phonetic engine, TSF service, settings app, NSIS installer and MSIX package pipeline
-- **Build State:** Last verified on 2026-10-27 by CI run `40570837189`: engine tests, TSF DLL (including the language-bar icon), settings app and `FidelKey-Setup-0.1.0.exe` all succeeded. The new MSIX job has not run yet.
+- **Build State:** Verified on 2026-10-29 by CI run `41011840071`: all five jobs green, including `FidelKey_0.1.0_x64.msix` (2.46 MB, 44 packaged files) and `FidelKey-Setup-0.1.0.exe`.
 
 ## Activity Log
 
@@ -87,8 +87,14 @@ FidelKey is a lightweight, free, ad-free Amharic keyboard for Windows 10/11 usin
 - [x] Added first-run elevation path in the settings app: `--install-tsf` copies
       the DLL/exe to `C:\Program Files\FidelKey` and calls `regsvr32`, with a
       matching `--uninstall-tsf`; the app shows Enable/Remove keyboard controls
-- [ ] Verify the MSIX CI job and package validation (`msix` artifact)
-- [ ] Store submission: publisher identity must match Partner Center; the
+- [x] Fixed the MSIX manifest: a Win32 app with
+      `uap10:RuntimeBehavior="win32App"` must not declare `EntryPoint`
+- [x] CI run `41011840071` green; MSIX artifact produced and unpacked for
+      inspection: Identity `afbix.fidelkey` 0.1.0.0 x64, `mediumIL`/`win32App`,
+      `runFullTrust` + `allowElevation`, `FidelKey.exe`, `FidelKeyTSF.dll`,
+      44 files total
+- [ ] Install the MSIX on real Windows and test the first-run UAC registration
+- [ ] Store submission: set the Partner Center publisher identity; the
       `allowElevation` capability and system-wide TSF install may be rejected
 
 ## Milestones
