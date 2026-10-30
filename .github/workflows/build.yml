@@ -116,10 +116,8 @@ jobs:
           Copy-Item "installer/msix/dist/tsf/FidelKeyTSF.dll" "installer/msix/layout/FidelKeyTSF.dll" -Force
           Copy-Item "installer/msix/Assets/*" "installer/msix/layout/Assets/" -Force
 
-          $publisher = "${{ vars.MSIX_PUBLISHER }}"
-          if ([string]::IsNullOrWhiteSpace($publisher)) { $publisher = "CN=Afbix" }
           $manifest = Get-Content "installer/msix/AppxManifest.xml" -Raw
-          $manifest = $manifest.Replace("__PUBLISHER__", $publisher).Replace("__VERSION__", "$env:VERSION.0")
+          $manifest = $manifest.Replace("__VERSION__", "$env:VERSION.0")
           Set-Content -LiteralPath "installer/msix/layout/AppxManifest.xml" -Value $manifest -Encoding UTF8
 
           if (!(Test-Path "installer/msix/layout/FidelKey.exe") -or !(Test-Path "installer/msix/layout/FidelKeyTSF.dll")) { throw "Missing MSIX inputs" }

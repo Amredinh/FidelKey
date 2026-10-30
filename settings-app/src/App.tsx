@@ -191,6 +191,7 @@ function App() {
         <div>
           <h1 style={{ marginTop: 0 }}>FidelKey</h1>
           <p>Amharic phonetic keyboard for Windows 10 and 11. Free, offline, ad-free, no telemetry.</p>
+          <p style={{ color: "#666" }}>Made by Afbix.</p>
           <p><strong>Current layout:</strong> Phonetic (Latin to Amharic)</p>
 
           <h2>Setup</h2>
@@ -396,10 +397,10 @@ function App() {
             <li>No telemetry and no keylogging</li>
             <li>No ads and no accounts</li>
             <li>Works offline</li>
-            <li>Open source</li>
           </ul>
           <p>Typing data never leaves your device. The settings app only reads and writes a local JSON file.</p>
-          <p>Source: https://github.com/Amredinh/FidelKey</p>
+          <p>Made by <strong>Afbix</strong>.</p>
+          <p style={{ color: "#666" }}>© 2026 Afbix. All rights reserved.</p>
         </div>
       )}
     </div>

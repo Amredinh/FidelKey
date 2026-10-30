@@ -71,9 +71,10 @@ FidelKey is a lightweight, free, ad-free Amharic keyboard for Windows 10/11 usin
       register the x64 DLL via `Sysnative\regsvr32.exe` from the 32-bit stub
 - [x] Confirmed the full pipeline produces `FidelKey-Setup-0.1.0.exe` (25.5 MB,
       includes the VC++ redistributable)
-- [x] Set the Microsoft Store package identity to `afbix.fidelkey` and the
+- [x] Set the initial Store package identity to `afbix.fidelkey` and the
       publisher to `Afbix` (Tauri identifier and `bundle.publisher`; installer
-      CompanyName/Publisher updated to match)
+      CompanyName/Publisher updated to match); replaced on 2026-10-29 with the
+      reserved Partner Center identity
 
 ### 2026-10-27
 - [x] Imported the final logo, removed the corner "K" watermark, and rebuilt a
@@ -94,8 +95,21 @@ FidelKey is a lightweight, free, ad-free Amharic keyboard for Windows 10/11 usin
       `runFullTrust` + `allowElevation`, `FidelKey.exe`, `FidelKeyTSF.dll`,
       44 files total
 - [ ] Install the MSIX on real Windows and test the first-run UAC registration
-- [ ] Store submission: set the Partner Center publisher identity; the
+- [ ] Store submission: complete the Partner Center listing; the
       `allowElevation` capability and system-wide TSF install may be rejected
+
+### 2026-10-29
+- [x] Matched the reserved Partner Center identity:
+      `Afbix.FidelKeyAmharicKeyboard`, publisher
+      `CN=1DE27A23-6791-4654-8220-956F0BBED2A8`; updated the MSIX manifest,
+      CI fallback and MSIX README
+- [x] Removed the GitHub link from the settings app About screen and added
+      "Made by Afbix" / Afbix copyright; no external website link in the app UI
+- [x] Created local-only `store.md` with English + Amharic Store listing copy,
+      age-rating answers, package notes and certification notes; added it to
+      `.gitignore` so it is never pushed
+- [ ] Rebuild the MSIX with the new identity and upload that artifact
+- [ ] Test the MSIX (Enable, typing, Remove) on a real Windows machine
 
 ## Milestones
 1. **Milestone 1 — Mapping specification** (DONE, GFF 3.3)
@@ -106,9 +120,9 @@ FidelKey is a lightweight, free, ad-free Amharic keyboard for Windows 10/11 usin
 6. **Milestone 6 — Testing and release** (IN PROGRESS, manual testing only)
 
 ## Current Focus
-- Verify the new MSIX CI job and the first-run elevated registration path
-- Install the CI-built setup/MSIX on a real Windows machine and test Notepad first
-- Verify TSF activation, composition, backspace, punctuation and uninstall
+- Rebuild the MSIX with the Partner Center identity and verify the package
+- Test the MSIX Enable/Remove flow and TSF typing on a real Windows machine
+- Prepare the English + Amharic Store listing from the local `store.md`
 - Decide whether to implement the traditional layout before release
 
 ## Known Issues / Uncertainties
@@ -130,8 +144,10 @@ FidelKey is a lightweight, free, ad-free Amharic keyboard for Windows 10/11 usin
   the classic elevated installer (COM + `ITfInputProcessorProfiles` registration).
 - The MSIX attempt packages a full-trust settings app plus a first-run elevated
   helper; it is not a pure MSIX TSF registration and may fail Store certification.
-  Its manifest publisher defaults to `CN=Afbix`; set `MSIX_PUBLISHER` to the
-  Partner Center identity before submission.
+  The package name is `Afbix.FidelKeyAmharicKeyboard`, publisher
+  `CN=1DE27A23-6791-4654-8220-956F0BBED2A8`; both are fixed in the manifest.
+- Store listing copy, IARC answers and certification notes are in the local
+  `store.md`; it is intentionally gitignored and must not be pushed.
 - The MSIX does not clean up `C:\Program Files\FidelKey` if the package is
   uninstalled without using the app's Remove keyboard control.
 - Final logo is in place; verify it at 16/24/32 px and in the language bar.
@@ -144,8 +160,9 @@ FidelKey is a lightweight, free, ad-free Amharic keyboard for Windows 10/11 usin
 4. Verify the engine test job genuinely fails on a broken mapping.
 5. Address runtime TSF issues found during testing.
 6. Verify the new icons and the TSF language-bar icon.
-7. Verify the `FidelKey-MSIX` artifact, set the Store publisher identity, and
-   test the first-run UAC registration; assess Store certification risk.
+7. Download the rebuilt `FidelKey-MSIX` artifact, confirm its identity is
+   `Afbix.FidelKeyAmharicKeyboard` / `CN=1DE27A23-6791-4654-8220-956F0BBED2A8`,
+   and test the first-run UAC registration; assess Store certification risk.
 8. If MSIX is rejected, fall back to the EXE/MSI route: add an offline WebView2
    installer, sign the setup, test `/S`, then submit through Partner Center.
 9. Implement the traditional layout or explicitly drop it.

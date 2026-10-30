@@ -11,6 +11,9 @@ settings-app/src-tauri/gen/
 installer/*.exe
 installer/dist/
 
+# Local Store submission notes (never commit)
+store.md
+
 # Editor / OS
 .vs/
 .vscode/

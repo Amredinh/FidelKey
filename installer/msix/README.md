@@ -21,7 +21,6 @@ Copy-Item ..\..\settings-app\src-tauri\target\release\FidelKey.exe layout\
 Copy-Item ..\..\build\tsf-service\Release\FidelKeyTSF.dll layout\
 Copy-Item Assets\* layout\Assets\
 $manifest = Get-Content AppxManifest.xml -Raw
-$manifest = $manifest.Replace("__PUBLISHER__", "CN=Afbix")
 $manifest = $manifest.Replace("__VERSION__", "0.1.0.0")
 Set-Content layout\AppxManifest.xml -Value $manifest -Encoding UTF8
 makeappx.exe pack /d layout /p FidelKey_0.1.0.0_x64.msix /o
@@ -31,10 +30,10 @@ CI produces the unsigned `FidelKey-MSIX` artifact.
 
 ## Store submission
 
-1. Reserve `afbix.fidelkey` in Partner Center.
-2. Set the repository variable `MSIX_PUBLISHER` to the exact **Publisher** identity shown by Partner Center (usually `CN=...`). The manifest default `CN=Afbix` will not match a Store identity.
-3. Upload the `FidelKey_0.1.0.0_x64.msix` package in the MSIX submission. The Store signs the package after certification.
-4. Add the Store listing screenshots and the 300/150/71/1080 px logo exports from `assets/branding/`.
+1. The package uses the reserved Partner Center name `Afbix.FidelKeyAmharicKeyboard` and publisher `CN=1DE27A23-6791-4654-8220-956F0BBED2A8`.
+2. Upload the `FidelKey_0.1.0_x64.msix` package in the MSIX submission. The Store signs the package after certification.
+3. Add the Store listing screenshots and the 300/150/71/1080 px logo exports from `assets/branding/`.
+4. Keep the local `store.md` out of git; it is gitignored.
 
 ## Known risks
 

@@ -7,8 +7,8 @@
   IgnorableNamespaces="uap uap10 rescap">
 
   <Identity
-    Name="afbix.fidelkey"
-    Publisher="__PUBLISHER__"
+    Name="Afbix.FidelKeyAmharicKeyboard"
+    Publisher="CN=1DE27A23-6791-4654-8220-956F0BBED2A8"
     Version="__VERSION__"
     ProcessorArchitecture="x64" />
 
@@ -16,7 +16,7 @@
     <DisplayName>FidelKey</DisplayName>
     <PublisherDisplayName>Afbix</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
-    <Description>Free Amharic phonetic keyboard for Windows.</Description>
+    <Description>Free Amharic phonetic keyboard for Windows by Afbix.</Description>
   </Properties>
 
   <Dependencies>
@@ -42,7 +42,7 @@
       uap10:RuntimeBehavior="win32App">
       <uap:VisualElements
         DisplayName="FidelKey"
-        Description="Free Amharic phonetic keyboard for Windows."
+        Description="Free Amharic phonetic keyboard for Windows by Afbix."
         BackgroundColor="#0E3A43"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png">
