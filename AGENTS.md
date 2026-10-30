@@ -16,9 +16,9 @@ FidelKey is a lightweight, free, ad-free Amharic keyboard for Windows 10/11 usin
 
 ## Status
 - **Start Date:** 2026-10-24
-- **Status:** Milestone 6 - MSIX uses no-space display name; green rebuild ready to re-upload
+- **Status:** Milestone 6 - MSIX display name set to the exact reserved Store name; rebuild pending
 - **Phase:** Phonetic engine, TSF service, settings app, NSIS installer and MSIX package pipeline
-- **Build State:** Verified on 2026-10-30 by CI run `41063888874`: all five jobs green, including `FidelKey_0.1.0_x64.msix` (2.47 MB, 46 packaged files) with display name `FidelKeyAmharicKeyboard`, identity `Afbix.FidelKeyAmharicKeyboard`, publisher `CN=1DE27A23-6791-4654-8220-956F0BBED2A8`, and `FidelKey-Setup-0.1.0.exe`.
+- **Build State:** CI run `41063888874` was green with `FidelKeyAmharicKeyboard`, but Partner Center confirmed the original reserved name is `FidelKey – Amharic Keyboard`. The manifest now uses that exact string; the rebuild and re-upload are pending.
 
 ## Activity Log
 
@@ -127,7 +127,10 @@ FidelKey is a lightweight, free, ad-free Amharic keyboard for Windows 10/11 usin
 - [x] CI run `41063888874` green after the no-space change; downloaded and
       inspected the new MSIX: `FidelKeyAmharicKeyboard`, identity and publisher
       unchanged, 46 packaged files
-- [ ] Re-upload the new MSIX to Partner Center
+- [x] Partner Center confirmed the original reserved name is
+      `FidelKey – Amharic Keyboard`; changed both manifest display names to that
+      exact string (en dash U+2013)
+- [ ] Rebuild and re-upload the corrected MSIX to Partner Center
 - [ ] Continue runtime testing after the package is accepted
 
 ## Milestones
@@ -165,7 +168,7 @@ FidelKey is a lightweight, free, ad-free Amharic keyboard for Windows 10/11 usin
   helper; it is not a pure MSIX TSF registration and may fail Store certification.
   The package name is `Afbix.FidelKeyAmharicKeyboard`, publisher
   `CN=1DE27A23-6791-4654-8220-956F0BBED2A8`, and display name
-  `FidelKeyAmharicKeyboard`; all three are fixed in the manifest.
+  `FidelKey – Amharic Keyboard`; all three are fixed in the manifest.
   The display name must match a name reserved in Partner Center exactly.
   If Partner Center's **Manage app names** shows a different exact string,
   use that string instead.
