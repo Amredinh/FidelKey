@@ -16,9 +16,9 @@ FidelKey is a lightweight, free, ad-free Amharic keyboard for Windows 10/11 usin
 
 ## Status
 - **Start Date:** 2026-10-24
-- **Status:** Milestone 6 - installer and best-effort MSIX both build in CI; runtime testing pending
+- **Status:** Milestone 6 - MSIX matches the reserved Store identity and builds; runtime testing pending
 - **Phase:** Phonetic engine, TSF service, settings app, NSIS installer and MSIX package pipeline
-- **Build State:** Verified on 2026-10-29 by CI run `41011840071`: all five jobs green, including `FidelKey_0.1.0_x64.msix` (2.46 MB, 44 packaged files) and `FidelKey-Setup-0.1.0.exe`.
+- **Build State:** Verified on 2026-10-30 by CI run `41014959376`: all five jobs green, including `FidelKey_0.1.0_x64.msix` (2.46 MB, 46 packaged files) with identity `Afbix.FidelKeyAmharicKeyboard` / `CN=1DE27A23-6791-4654-8220-956F0BBED2A8`, and `FidelKey-Setup-0.1.0.exe`.
 
 ## Activity Log
 
@@ -108,8 +108,12 @@ FidelKey is a lightweight, free, ad-free Amharic keyboard for Windows 10/11 usin
 - [x] Created local-only `store.md` with English + Amharic Store listing copy,
       age-rating answers, package notes and certification notes; added it to
       `.gitignore` so it is never pushed
-- [ ] Rebuild the MSIX with the new identity and upload that artifact
+- [x] CI run `41014959376` green after the identity change; downloaded and
+      inspected `FidelKey_0.1.0_x64.msix`: Identity
+      `Afbix.FidelKeyAmharicKeyboard`, publisher
+      `CN=1DE27A23-6791-4654-8220-956F0BBED2A8`, version 0.1.0.0, x64, 46 files
 - [ ] Test the MSIX (Enable, typing, Remove) on a real Windows machine
+- [ ] Upload the MSIX and complete the English + Amharic Store listing
 
 ## Milestones
 1. **Milestone 1 — Mapping specification** (DONE, GFF 3.3)
