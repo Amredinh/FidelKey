@@ -16,9 +16,9 @@ FidelKey is a lightweight, free, ad-free Amharic keyboard for Windows 10/11 usin
 
 ## Status
 - **Start Date:** 2026-10-24
-- **Status:** Milestone 6 - MSIX display name set to the exact reserved Store name; rebuild pending
+- **Status:** Milestone 6 - exact reserved display name packaged; MSIX ready to re-upload
 - **Phase:** Phonetic engine, TSF service, settings app, NSIS installer and MSIX package pipeline
-- **Build State:** CI run `41063888874` was green with `FidelKeyAmharicKeyboard`, but Partner Center confirmed the original reserved name is `FidelKey – Amharic Keyboard`. The manifest now uses that exact string; the rebuild and re-upload are pending.
+- **Build State:** Verified on 2026-10-30 by CI run `41115142522`: all five jobs green, including `FidelKey_0.1.0_x64.msix` (2.47 MB, 46 packaged files) with display name `FidelKey – Amharic Keyboard`, identity `Afbix.FidelKeyAmharicKeyboard`, publisher `CN=1DE27A23-6791-4654-8220-956F0BBED2A8`, and `FidelKey-Setup-0.1.0.exe`.
 
 ## Activity Log
 
@@ -130,7 +130,10 @@ FidelKey is a lightweight, free, ad-free Amharic keyboard for Windows 10/11 usin
 - [x] Partner Center confirmed the original reserved name is
       `FidelKey – Amharic Keyboard`; changed both manifest display names to that
       exact string (en dash U+2013)
-- [ ] Rebuild and re-upload the corrected MSIX to Partner Center
+- [x] Fixed a build break caused by replacing the identity name during the
+      display-name edit; CI run `41115142522` green, MSIX inspected:
+      `FidelKey – Amharic Keyboard`, correct identity/publisher, 46 files
+- [ ] Re-upload the corrected MSIX to Partner Center
 - [ ] Continue runtime testing after the package is accepted
 
 ## Milestones
