@@ -31,9 +31,10 @@ CI produces the unsigned `FidelKey-MSIX` artifact.
 ## Store submission
 
 1. The package uses the reserved Partner Center name `Afbix.FidelKeyAmharicKeyboard` and publisher `CN=1DE27A23-6791-4654-8220-956F0BBED2A8`.
-2. Upload the `FidelKey_0.1.0_x64.msix` package in the MSIX submission. The Store signs the package after certification.
-3. Add the Store listing screenshots and the 300/150/71/1080 px logo exports from `assets/branding/`.
-4. Keep the local `store.md` out of git; it is gitignored.
+2. `Package/Properties/DisplayName` must exactly match the reserved product name `FidelKey Amharic Keyboard`; `FidelKey` alone is rejected because it is not reserved.
+3. Upload the `FidelKey_0.1.0_x64.msix` package in the MSIX submission. The Store signs the package after certification.
+4. Add the Store listing screenshots and the 300/150/71/1080 px logo exports from `assets/branding/`.
+5. Keep the local `store.md` out of git; it is gitignored.
 
 ## Known risks
 
